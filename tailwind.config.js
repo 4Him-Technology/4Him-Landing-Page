@@ -22,6 +22,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',
