@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #c49a3c;
+  --gold-light: #e8c060;
+  --gold-dark: #a07830;
+  --cream: #f5f0e8;
+  --dark: #050505;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #050505;
+  color: #f5f0e8;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0d0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #c49a3c;
+  border-radius: 3px;
+}
+
+/* Selection */
+::selection {
+  background: rgba(196, 154, 60, 0.3);
+  color: #f5f0e8;
+}
+
+@layer utilities {
+  .text-gold {
+    color: #c49a3c;
+  }
+  .text-gold-light {
+    color: #e8c060;
+  }
+  .bg-gold {
+    background-color: #c49a3c;
+  }
+  .border-gold {
+    border-color: #c49a3c;
+  }
+  .gradient-gold {
+    background: linear-gradient(135deg, #c49a3c, #e8c060);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #c49a3c, #e8c060);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
