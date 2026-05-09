@@ -811,92 +811,79 @@ export default function LandingPage() {
             {BOTTLENECKS.map((b, i) => {
               const Icon = b.icon;
               const isActive = selected === b.id;
-              const primary = AGENT_COLORS[b.agents[0]];
-              const borderBg = agentBorder(b.agents);
-              const thickness = isActive ? 2 : 1;
               return (
                 <Reveal key={b.id} delay={i * 60}>
-                  <div style={{ borderRadius:20, padding:thickness, background:borderBg, boxShadow: isActive ? `0 0 40px ${primary}33, 0 16px 32px rgba(0,0,0,.5)` : "0 8px 24px rgba(0,0,0,.3)", height:"100%" }}>
-                    <button onClick={() => setSelected(isActive ? null : b.id)}
-                      aria-pressed={isActive}
-                      className="lp-bcard w-full text-left h-full"
-                      style={{
-                        padding:"26px 28px", borderRadius:20 - thickness,
-                        background: isActive
-                          ? `linear-gradient(155deg,${primary}18,rgba(10,10,10,.95))`
-                          : "linear-gradient(155deg,rgba(10,10,10,.92),rgba(10,10,10,.96))",
-                      }}>
-                      <div className="flex items-start gap-4">
-                        <div style={{ width:42, height:42, borderRadius:12, flexShrink:0, background:isActive ? `${primary}22` : `${primary}10`, border:`1px solid ${isActive ? primary : `${primary}55`}`, display:"flex", alignItems:"center", justifyContent:"center", color:isActive ? primary : `${primary}cc`, transition:"all 220ms ease" }}>
-                          <Icon style={{ width:18, height:18 }} aria-hidden />
-                        </div>
-                        <div style={{ flex:1, minWidth:0 }}>
-                          <div className="font-bold" style={{ fontSize:15, color:isActive ? "#f5f0e8" : "rgba(245,240,232,.92)", marginBottom:6, letterSpacing:"-0.01em" }}>
-                            {b.title}
-                          </div>
-                          <div style={{ fontSize:13, lineHeight:1.6, color:"rgba(245,240,232,.55)", marginBottom:b.agents.length > 1 ? 10 : 0 }}>{b.pain}</div>
-                          {b.agents.length > 1 && (
-                            <div className="flex items-center gap-1.5 flex-wrap" aria-label="Agentes envolvidos">
-                              {b.agents.map(a => (
-                                <span key={a} style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"2px 8px", borderRadius:100, background:`${AGENT_COLORS[a]}18`, border:`1px solid ${AGENT_COLORS[a]}55`, fontSize:10, fontWeight:700, color:AGENT_COLORS[a], letterSpacing:"0.04em" }}>
-                                  <span style={{ width:5, height:5, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:`0 0 6px ${AGENT_COLORS[a]}` }} aria-hidden />
-                                  {a}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <ChevronRight className="w-4 h-4 shrink-0 mt-0.5" aria-hidden
-                          style={{ color:isActive ? primary : "rgba(245,240,232,.35)", transform:isActive ? "rotate(90deg)" : "", transition:"transform 220ms ease" }} />
+                  <button onClick={() => setSelected(isActive ? null : b.id)}
+                    aria-pressed={isActive}
+                    className="lp-bcard w-full text-left h-full"
+                    style={{
+                      padding:"26px 28px", borderRadius:20,
+                      background: isActive
+                        ? "linear-gradient(155deg,rgba(196,154,60,.08),rgba(10,10,10,.85))"
+                        : "linear-gradient(155deg,rgba(196,154,60,.04),rgba(10,10,10,.85))",
+                      border: isActive ? "1px solid rgba(196,154,60,.55)" : "1px solid rgba(196,154,60,.14)",
+                      boxShadow: isActive ? "0 0 40px rgba(196,154,60,.18), 0 16px 32px rgba(0,0,0,.5)" : "0 8px 24px rgba(0,0,0,.3)",
+                    }}>
+                    <div className="flex items-start gap-4">
+                      <div style={{ width:42, height:42, borderRadius:12, flexShrink:0, background:isActive ? "rgba(196,154,60,.18)" : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? "rgba(196,154,60,.5)" : "rgba(196,154,60,.18)"}`, display:"flex", alignItems:"center", justifyContent:"center", color:isActive ? "#e8c060" : "#c49a3c", transition:"all 220ms ease" }}>
+                        <Icon style={{ width:18, height:18 }} aria-hidden />
                       </div>
-                    </button>
-                  </div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div className="font-bold" style={{ fontSize:15, color:isActive ? "#f5f0e8" : "rgba(245,240,232,.92)", marginBottom:6, letterSpacing:"-0.01em" }}>
+                          {b.title}
+                        </div>
+                        <div style={{ fontSize:13, lineHeight:1.6, color:"rgba(245,240,232,.55)" }}>{b.pain}</div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 shrink-0 mt-0.5" aria-hidden
+                        style={{ color:isActive ? "#c49a3c" : "rgba(196,154,60,.35)", transform:isActive ? "rotate(90deg)" : "", transition:"transform 220ms ease" }} />
+                    </div>
+                  </button>
                 </Reveal>
               );
             })}
           </div>
 
           {/* solution panel */}
-          {selected && activeBG && (() => {
-            const primary = AGENT_COLORS[activeBG.agents[0]];
-            const borderBg = agentBorder(activeBG.agents);
-            return (
-              <div style={{ animation:"slidePanel 320ms cubic-bezier(.34,1.4,.64,1)" }}>
-                <div style={{ borderRadius:24, padding:2, background:borderBg, boxShadow:`0 0 60px ${primary}22, 0 24px 48px rgba(0,0,0,.5)` }}>
-                  <div style={{ padding:"clamp(24px,4vw,40px)", borderRadius:22, background:`linear-gradient(135deg,${primary}10,rgba(10,10,10,.92))` }}>
-                    <div className="grid gap-8 md:grid-cols-[1fr_auto]">
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom:18 }}>
-                          {activeBG.agents.map(a => (
-                            <span key={a} style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"5px 12px", borderRadius:100, background:`${AGENT_COLORS[a]}18`, border:`1px solid ${AGENT_COLORS[a]}55`, fontSize:11, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", color:AGENT_COLORS[a] }}>
-                              <span style={{ width:6, height:6, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:`0 0 8px ${AGENT_COLORS[a]}` }} aria-hidden />
-                              {a}
-                            </span>
-                          ))}
-                        </div>
-                        <h3 className="font-bold" style={{ fontSize:"clamp(20px,3vw,32px)", color:"#f5f0e8", margin:"0 0 14px", letterSpacing:"-0.02em" }}>
-                          Como resolvemos esse desafio
-                        </h3>
-                        <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.7)", margin:"0 0 20px", maxWidth:600 }}>
-                          {activeBG.solution}
-                        </p>
-                        <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"8px 16px", borderRadius:100, background:`${primary}10`, border:`1px solid ${primary}30`, fontSize:13, color:primary, fontWeight:700 }}>
-                          <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden />
-                          {activeBG.metric}
-                        </div>
+          {selected && activeBG && (
+            <div style={{ animation:"slidePanel 320ms cubic-bezier(.34,1.4,.64,1)" }}>
+              <div style={{ borderRadius:24, padding:2, background:agentBorder(activeBG.agents), boxShadow:"0 0 60px rgba(196,154,60,.12), 0 24px 48px rgba(0,0,0,.5)" }}>
+                <div style={{ padding:"clamp(24px,4vw,40px)", borderRadius:22, background:"linear-gradient(135deg,rgba(196,154,60,.06),rgba(10,10,10,.92))" }}>
+                  <div className="grid gap-8 md:grid-cols-[1fr_auto]">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom:18 }}>
+                        <span style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"5px 12px", borderRadius:100, background:"rgba(196,154,60,.12)", border:"1px solid rgba(196,154,60,.35)", fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:"#e8c060" }}>
+                          {activeBG.product}
+                        </span>
+                        {activeBG.agents.length > 1 && (
+                          <span className="flex items-center gap-1.5" aria-label="Agentes envolvidos">
+                            {activeBG.agents.map(a => (
+                              <span key={a} aria-hidden style={{ width:8, height:8, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:`0 0 8px ${AGENT_COLORS[a]}` }} />
+                            ))}
+                          </span>
+                        )}
                       </div>
-                      <div className="flex items-center">
-                        <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full whitespace-nowrap"
-                          style={{ padding:"16px 28px", background:`linear-gradient(135deg,${primary},${primary}cc)`, color:"#050505", fontSize:14, boxShadow:`0 8px 28px ${primary}66` }}>
-                          Quero essa solução →
-                        </button>
+                      <h3 className="font-bold" style={{ fontSize:"clamp(20px,3vw,32px)", color:"#f5f0e8", margin:"0 0 14px", letterSpacing:"-0.02em" }}>
+                        Como resolvemos esse desafio
+                      </h3>
+                      <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.7)", margin:"0 0 20px", maxWidth:600 }}>
+                        {activeBG.solution}
+                      </p>
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"8px 16px", borderRadius:100, background:"rgba(196,154,60,.1)", border:"1px solid rgba(196,154,60,.3)", fontSize:13, color:"#c49a3c", fontWeight:700 }}>
+                        <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden />
+                        {activeBG.metric}
                       </div>
+                    </div>
+                    <div className="flex items-center">
+                      <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full whitespace-nowrap"
+                        style={{ padding:"16px 28px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:14, boxShadow:"0 8px 28px rgba(196,154,60,.45)" }}>
+                        Quero essa solução →
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            );
-          })()}
+            </div>
+          )}
         </div>
       </section>
 
@@ -1326,7 +1313,6 @@ export default function LandingPage() {
               {PILLARS.map((p, i) => {
                 const Icon = PILLAR_ICONS[i];
                 const isActive = pillar === i;
-                const primary = AGENT_COLORS[p.agents[0]];
                 const borderBg = agentBorder(p.agents);
                 const thickness = isActive ? 2 : 1;
                 return (
@@ -1334,37 +1320,31 @@ export default function LandingPage() {
                     <div style={{ borderRadius:18, padding:thickness, background:borderBg, transition:"all 400ms ease" }}>
                       <div className="relative overflow-hidden" style={{
                         height:"clamp(120px,16vw,160px)", borderRadius:18 - thickness,
-                        background: isActive ? `linear-gradient(180deg,${primary}22,${primary}05)` : "rgba(10,10,10,.85)",
+                        background: isActive ? "linear-gradient(180deg,rgba(196,154,60,.18),rgba(196,154,60,.02))" : "rgba(10,10,10,.85)",
                         transition: "all 400ms ease",
                       }}>
                         {isActive && (
                           <>
-                            <div aria-hidden style={{ position:"absolute", inset:0, background:`linear-gradient(180deg,transparent,${primary}1f,transparent)`, animation:"scanV 3s ease-in-out infinite", opacity:.6 }} />
-                            <div aria-hidden style={{ position:"absolute", top:-2, left:"50%", transform:"translateX(-50%)", width:3, height:8, borderRadius:2, background:primary, boxShadow:`0 0 16px ${primary}` }} />
+                            <div aria-hidden style={{ position:"absolute", inset:0, background:"linear-gradient(180deg,transparent,rgba(196,154,60,.12),transparent)", animation:"scanV 3s ease-in-out infinite", opacity:.6 }} />
+                            <div aria-hidden style={{ position:"absolute", top:-2, left:"50%", transform:"translateX(-50%)", width:3, height:8, borderRadius:2, background:"#e8c060", boxShadow:"0 0 16px #e8c060" }} />
                           </>
                         )}
                         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ padding:16 }}>
-                          <div style={{ width:44, height:44, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", background:isActive ? `${primary}33` : `${primary}12`, border:`1px solid ${isActive ? primary : `${primary}55`}`, color:isActive ? primary : `${primary}cc`, transition:"all 300ms ease" }}>
+                          <div style={{ width:44, height:44, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", background:isActive ? "rgba(196,154,60,.22)" : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? "rgba(196,154,60,.5)" : "rgba(196,154,60,.18)"}`, color:isActive ? "#e8c060" : "#c49a3c", transition:"all 300ms ease" }}>
                             <Icon className="w-5 h-5" aria-hidden />
                           </div>
                           <div className="font-bold" style={{ fontSize:"clamp(14px,1.4vw,17px)", color:isActive ? "#f5f0e8" : "rgba(245,240,232,.75)", letterSpacing:"-0.01em", textAlign:"center" }}>
                             {p.label}
                           </div>
-                          {p.agents.length === 1 ? (
-                            <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:isActive ? primary : `${primary}aa`, transition:"color 300ms ease" }}>
-                              {p.agents[0]}
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1">
-                              {p.agents.map(a => (
-                                <span key={a} aria-hidden style={{ width:6, height:6, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:isActive ? `0 0 6px ${AGENT_COLORS[a]}` : "none", transition:"box-shadow 300ms ease" }} />
-                              ))}
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1.5" aria-label="Agentes envolvidos">
+                            {p.agents.map(a => (
+                              <span key={a} aria-hidden style={{ width:7, height:7, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:isActive ? `0 0 8px ${AGENT_COLORS[a]}` : `0 0 4px ${AGENT_COLORS[a]}66`, transition:"box-shadow 300ms ease" }} />
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div style={{ marginTop:10, fontFamily:"monospace", fontSize:10, letterSpacing:"0.2em", color:isActive ? primary : "rgba(245,240,232,.3)", textAlign:"center", transition:"color 300ms ease" }}>
+                    <div style={{ marginTop:10, fontFamily:"monospace", fontSize:10, letterSpacing:"0.2em", color:isActive ? "#c49a3c" : "rgba(245,240,232,.3)", textAlign:"center", transition:"color 300ms ease" }}>
                       PILAR · {String(i+1).padStart(2,"0")}
                     </div>
                   </button>
@@ -1378,61 +1358,53 @@ export default function LandingPage() {
           </Reveal>
 
           {/* Active pillar content */}
-          {(() => {
-            const p = PILLARS[pillar];
-            const primary = AGENT_COLORS[p.agents[0]];
-            const borderBg = agentBorder(p.agents);
-            return (
-              <div key={pillar} style={{ animation:"slidePanel 400ms cubic-bezier(.34,1.4,.64,1)" }}>
-                <div style={{ borderRadius:28, padding:2, background:borderBg, boxShadow:`0 0 80px ${primary}1a, 0 24px 48px rgba(0,0,0,.5)` }}>
-                  <div style={{ padding:"clamp(28px,4vw,48px)", borderRadius:26, background:`linear-gradient(135deg,${primary}10,rgba(10,10,10,.92))`, position:"relative", overflow:"hidden" }}>
-                    <div aria-hidden style={{ position:"absolute", top:-100, right:-100, width:380, height:380, borderRadius:"50%", background:`radial-gradient(circle,${primary}28,transparent 60%)`, filter:"blur(50px)" }} />
+          <div key={pillar} style={{ animation:"slidePanel 400ms cubic-bezier(.34,1.4,.64,1)" }}>
+            <div style={{ borderRadius:28, padding:2, background:agentBorder(PILLARS[pillar].agents), boxShadow:"0 0 80px rgba(196,154,60,.08), 0 24px 48px rgba(0,0,0,.5)" }}>
+              <div style={{ padding:"clamp(28px,4vw,48px)", borderRadius:26, background:"linear-gradient(135deg,rgba(196,154,60,.08),rgba(10,10,10,.92))", position:"relative", overflow:"hidden" }}>
+                <div aria-hidden style={{ position:"absolute", top:-100, right:-100, width:380, height:380, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.18),transparent 60%)", filter:"blur(50px)" }} />
 
-                    <div className="relative grid md:grid-cols-2 gap-10 items-start">
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom:20 }}>
-                          <span style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"6px 14px", borderRadius:100, background:`${primary}18`, border:`1px solid ${primary}55`, fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:primary }}>
-                            <PIcon className="w-3.5 h-3.5" aria-hidden />
-                            Pilar · {p.label}
-                          </span>
-                          {p.agents.map(a => (
-                            <span key={a} style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"5px 12px", borderRadius:100, background:`${AGENT_COLORS[a]}15`, border:`1px solid ${AGENT_COLORS[a]}55`, fontSize:11, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", color:AGENT_COLORS[a] }}>
-                              <span style={{ width:6, height:6, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:`0 0 8px ${AGENT_COLORS[a]}` }} aria-hidden />
-                              {a}
-                            </span>
-                          ))}
+                <div className="relative grid md:grid-cols-2 gap-10 items-start">
+                  <div>
+                    <div className="flex items-center gap-3 flex-wrap" style={{ marginBottom:20 }}>
+                      <span style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"6px 14px", borderRadius:100, background:"rgba(196,154,60,.12)", border:"1px solid rgba(196,154,60,.35)", fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"#e8c060" }}>
+                        <PIcon className="w-3.5 h-3.5" aria-hidden />
+                        Pilar · {PILLARS[pillar].label}
+                      </span>
+                      <span className="flex items-center gap-1.5" aria-label="Agentes envolvidos">
+                        {PILLARS[pillar].agents.map(a => (
+                          <span key={a} aria-hidden style={{ width:9, height:9, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:`0 0 10px ${AGENT_COLORS[a]}` }} />
+                        ))}
+                      </span>
+                    </div>
+                    <h3 className="font-bold" style={{ fontSize:"clamp(22px,2.8vw,32px)", color:"#f5f0e8", margin:"0 0 16px", letterSpacing:"-0.02em", lineHeight:1.15 }}>
+                      {PILLARS[pillar].title}
+                    </h3>
+                    <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.65)", margin:"0 0 28px" }}>
+                      {PILLARS[pillar].desc}
+                    </p>
+                    <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full"
+                      style={{ padding:"14px 26px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:13, boxShadow:"0 8px 28px rgba(196,154,60,.45)" }}>
+                      Conversar sobre o seu caso →
+                    </button>
+                  </div>
+                  <div>
+                    <div className="uppercase" style={{ fontSize:10, letterSpacing:"0.28em", color:"rgba(245,240,232,.45)", marginBottom:18 }}>O que está incluso</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {PILLARS[pillar].features.map((f, i) => (
+                        <div key={i} className="flex items-center gap-3"
+                          style={{ padding:"12px 14px", background:"rgba(5,5,5,.5)", border:"1px solid rgba(196,154,60,.14)", borderRadius:12, fontSize:13, color:"rgba(245,240,232,.85)", animation:`fadeIn4h 350ms ease ${i*60}ms both` }}>
+                          <div aria-hidden style={{ width:18, height:18, borderRadius:6, background:"linear-gradient(135deg,#96682c,#c49a3c)", color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                            <Check className="w-2.5 h-2.5" strokeWidth={4} />
+                          </div>
+                          {f}
                         </div>
-                        <h3 className="font-bold" style={{ fontSize:"clamp(22px,2.8vw,32px)", color:"#f5f0e8", margin:"0 0 16px", letterSpacing:"-0.02em", lineHeight:1.15 }}>
-                          {p.title}
-                        </h3>
-                        <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.65)", margin:"0 0 28px" }}>
-                          {p.desc}
-                        </p>
-                        <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full"
-                          style={{ padding:"14px 26px", background:`linear-gradient(135deg,${primary},${primary}cc)`, color:"#050505", fontSize:13, boxShadow:`0 8px 28px ${primary}55` }}>
-                          Conversar sobre o seu caso →
-                        </button>
-                      </div>
-                      <div>
-                        <div className="uppercase" style={{ fontSize:10, letterSpacing:"0.28em", color:"rgba(245,240,232,.45)", marginBottom:18 }}>O que está incluso</div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {p.features.map((f, i) => (
-                            <div key={i} className="flex items-center gap-3"
-                              style={{ padding:"12px 14px", background:"rgba(5,5,5,.5)", border:`1px solid ${primary}22`, borderRadius:12, fontSize:13, color:"rgba(245,240,232,.85)", animation:`fadeIn4h 350ms ease ${i*60}ms both` }}>
-                              <div aria-hidden style={{ width:18, height:18, borderRadius:6, background:`linear-gradient(135deg,${primary},${primary}aa)`, color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                                <Check className="w-2.5 h-2.5" strokeWidth={4} />
-                              </div>
-                              {f}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
-            );
-          })()}
+            </div>
+          </div>
         </div>
       </section>
 
