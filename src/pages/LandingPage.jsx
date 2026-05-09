@@ -565,7 +565,7 @@ export default function LandingPage() {
           style={{ background:"rgba(5,5,5,.97)", backdropFilter:"blur(24px)", animation:"fadeInFast 200ms ease" }}>
           <div className="flex items-center justify-between" style={{ padding:"20px 24px" }}>
             <div className="flex items-center gap-3">
-              <img src={LOGO_ICON_URL} alt="4Him Technology" className="h-9 w-auto" />
+              <img src={LOGO_ICON_URL} alt="4Him" className="h-9 w-auto" />
               <div>
                 <div className="font-bold text-sm" style={{ color:"#f5f0e8" }}>4Him<span style={{ color:"#c49a3c" }}>.</span></div>
                 <div className="text-[8px] font-medium uppercase -mt-0.5" style={{ letterSpacing:"0.2em", color:"rgba(245,240,232,.45)" }}>Technology</div>
@@ -603,7 +603,7 @@ export default function LandingPage() {
       <nav className="sticky z-50 flex items-center justify-between" aria-label="Navegação principal"
         style={{ top:16, margin:"16px 32px 0", padding:"12px 20px", background:"rgba(10,10,10,.7)", backdropFilter:"blur(24px) saturate(1.4)", WebkitBackdropFilter:"blur(24px) saturate(1.4)", border:"1px solid rgba(196,154,60,.18)", borderRadius:100, boxShadow:"0 16px 48px -16px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04)" }}>
         <div className="flex items-center gap-3">
-          <img src={LOGO_ICON_URL} alt="4Him Technology" className="h-9 w-auto" />
+          <img src={LOGO_ICON_URL} alt="4Him" className="h-9 w-auto" />
           <div className="hidden sm:block">
             <div className="text-sm font-bold" style={{ color:"#f5f0e8", letterSpacing:"-0.01em" }}>4Him<span style={{ color:"#c49a3c" }}>.</span></div>
             <div className="text-[8px] font-medium uppercase -mt-0.5" style={{ letterSpacing:"0.2em", color:"rgba(245,240,232,.45)" }}>Technology</div>
