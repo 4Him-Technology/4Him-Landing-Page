@@ -294,28 +294,16 @@ const PILLARS = [
     features: ["Disponível 24/7","WhatsApp · Instagram · Site","Leitura de áudio e imagem","Respostas humanizadas","Handoff para humano","Histórico completo"],
   },
   {
-    id: "comercial", label: "Comercial", agents: ["ELO4H", "AD4HN"],
-    title: "Do anúncio à conversão — sem atrito",
-    desc: "AD4HN entrega tráfego qualificado e ELO4H faz a triagem, qualificação e follow-up. Lead chega ao comercial pronto para fechar.",
-    features: ["Tráfego pago otimizado","Qualificação automática","Follow-up no tempo ideal","Agenda inteligente","Conversão monitorada","Integração com CRM"],
-  },
-  {
-    id: "inteligencia", label: "Inteligência", agents: ["ELO4H", "4HBEL", "AD4HN", "MARI4H"],
-    title: "Dados de toda a operação no mesmo dashboard",
-    desc: "Cada agente alimenta a inteligência central — operação, financeiro, marketing e integrações sob medida. Decisão estratégica baseada na empresa inteira.",
-    features: ["Métricas em tempo real","Operação · Financeiro · Marketing","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Visão única da empresa"],
-  },
-  {
     id: "financeiro", label: "Financeiro", agents: ["4HBEL"],
     title: "BPO financeiro automatizado com IA",
     desc: "IA aplicada ao BPO financeiro. Conciliações automáticas, relatórios em tempo real e previsibilidade de fluxo de caixa.",
     features: ["Conciliação automática","Relatórios em tempo real","Previsibilidade de fluxo","Redução de custo operacional","Integração bancária","Auditoria contínua"],
   },
   {
-    id: "midias", label: "Mídias Sociais", agents: ["AD4HN", "ELO4H"],
-    title: "Conteúdo, tráfego e engajamento conectados",
-    desc: "AD4HN cuida de criativos, calendário editorial e tráfego pago. ELO4H responde DMs e comentários com o mesmo tom de voz — marca ativa e responsiva.",
-    features: ["Tráfego pago otimizado","Calendário editorial automático","Resposta de DMs e comentários","Gestão multi-plataforma","Tom de voz consistente","Métricas conectadas a vendas"],
+    id: "midias", label: "Mídias Sociais", agents: ["AD4HN"],
+    title: "Tráfego pago e gestão de conteúdo",
+    desc: "Agente de mídias sociais que gerencia tráfego pago, planeja e publica conteúdo, otimiza criativos e conecta cada métrica ao funil comercial.",
+    features: ["Tráfego pago otimizado","Calendário editorial automático","Gestão multi-plataforma","Métricas conectadas a vendas","Otimização de criativos","Relatórios de ROAS"],
   },
   {
     id: "custom", label: "Customizado", agents: ["MARI4H"],
@@ -323,9 +311,15 @@ const PILLARS = [
     desc: "Agente de soluções customizadas. Se pode ser feito com IA, fazemos. Da automação inusitada à integração estratégica — o céu é o limite.",
     features: ["Automações fora do padrão","Integrações sob medida","Casos de uso únicos","Prototipagem rápida com IA","Discovery completo","Suporte dedicado"],
   },
+  {
+    id: "inteligencia", label: "Inteligência", agents: ["ELO4H", "4HBEL", "AD4HN", "MARI4H"],
+    title: "Dados de toda a operação no mesmo dashboard",
+    desc: "Cada agente alimenta a inteligência central — operação, financeiro, marketing e integrações sob medida. Decisão estratégica baseada na empresa inteira.",
+    features: ["Métricas em tempo real","Operação · Financeiro · Marketing","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Visão única da empresa"],
+  },
 ];
 
-const PILLAR_ICONS = [Headphones, Target, LineChart, DollarSign, Megaphone, Lightbulb];
+const PILLAR_ICONS = [Headphones, DollarSign, Megaphone, Lightbulb, LineChart];
 
 const PROCESS = [
   { n:"01", t:"Diagnóstico",  dur:"Semana 1",          desc:"Mergulho na sua operação. Mapeamento de processos, gargalos e oportunidades.",       out:"Mapa de processos + relatório"   },
@@ -1299,7 +1293,7 @@ export default function LandingPage() {
             <Reveal>
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── O que nossos agentes fazem ────</div>
               <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.18, margin:"0 0 16px" }}>
-                Seis pilares.{" "}
+                Cinco pilares.{" "}
                 <span ref={tw5Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline" }}>{t5 || " "}</span>
               </h2>
               <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:620, margin:"0 auto" }}>
@@ -1310,45 +1304,36 @@ export default function LandingPage() {
 
           {/* Pillar towers */}
           <Reveal>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-5" style={{ maxWidth:1100, margin:"0 auto 32px" }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-5" style={{ maxWidth:1300, margin:"0 auto 32px" }}>
               {PILLARS.map((p, i) => {
                 const Icon = PILLAR_ICONS[i];
                 const isActive = pillar === i;
-                const borderBg = agentBorder(p.agents);
-                const thickness = isActive ? 2 : 1;
-                const primaryColor = AGENT_COLORS[p.agents[0]];
-                const secondColor = AGENT_COLORS[p.agents[1] || p.agents[0]];
-                const neonGlow = isActive
-                  ? (p.agents.length === 1
-                      ? `0 0 24px ${primaryColor}66, 0 0 6px ${primaryColor}44`
-                      : `0 0 24px ${primaryColor}55, 0 0 24px ${secondColor}55`)
-                  : "none";
                 return (
                   <button key={p.id} onClick={() => setPillar(i)} className="group relative">
-                    <div style={{ borderRadius:18, padding:thickness, background:borderBg, boxShadow:neonGlow, transition:"all 400ms ease" }}>
-                      <div className="relative overflow-hidden" style={{
-                        height:"clamp(120px,16vw,160px)", borderRadius:18 - thickness,
-                        background: isActive ? "linear-gradient(180deg, #1a1408, #0a0a0a)" : "#0a0a0a",
-                        transition: "all 400ms ease",
-                      }}>
-                        {isActive && (
-                          <>
-                            <div aria-hidden style={{ position:"absolute", inset:0, background:"linear-gradient(180deg,transparent,rgba(196,154,60,.12),transparent)", animation:"scanV 3s ease-in-out infinite", opacity:.6 }} />
-                            <div aria-hidden style={{ position:"absolute", top:-2, left:"50%", transform:"translateX(-50%)", width:3, height:8, borderRadius:2, background:"#e8c060", boxShadow:"0 0 16px #e8c060" }} />
-                          </>
-                        )}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ padding:16 }}>
-                          <div style={{ width:44, height:44, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", background:isActive ? "rgba(196,154,60,.22)" : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? "rgba(196,154,60,.5)" : "rgba(196,154,60,.18)"}`, color:isActive ? "#e8c060" : "#c49a3c", transition:"all 300ms ease" }}>
-                            <Icon className="w-5 h-5" aria-hidden />
-                          </div>
-                          <div className="font-bold" style={{ fontSize:"clamp(14px,1.4vw,17px)", color:isActive ? "#f5f0e8" : "rgba(245,240,232,.75)", letterSpacing:"-0.01em", textAlign:"center" }}>
-                            {p.label}
-                          </div>
-                          <div className="flex items-center gap-1.5" aria-label="Agentes envolvidos">
-                            {p.agents.map(a => (
-                              <span key={a} aria-hidden style={{ width:7, height:7, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:isActive ? `0 0 8px ${AGENT_COLORS[a]}` : `0 0 4px ${AGENT_COLORS[a]}66`, transition:"box-shadow 300ms ease" }} />
-                            ))}
-                          </div>
+                    <div className="relative overflow-hidden" style={{
+                      height:"clamp(120px,16vw,160px)", borderRadius:18,
+                      background: isActive ? "linear-gradient(180deg, #1a1408, #0a0a0a)" : "#0a0a0a",
+                      border: isActive ? "1px solid rgba(196,154,60,.6)" : "1px solid rgba(196,154,60,.14)",
+                      boxShadow: isActive ? "0 0 24px rgba(196,154,60,.18), 0 8px 24px rgba(0,0,0,.4)" : "0 4px 12px rgba(0,0,0,.3)",
+                      transition: "all 400ms ease",
+                    }}>
+                      {isActive && (
+                        <>
+                          <div aria-hidden style={{ position:"absolute", inset:0, background:"linear-gradient(180deg,transparent,rgba(196,154,60,.12),transparent)", animation:"scanV 3s ease-in-out infinite", opacity:.6 }} />
+                          <div aria-hidden style={{ position:"absolute", top:-2, left:"50%", transform:"translateX(-50%)", width:3, height:8, borderRadius:2, background:"#e8c060", boxShadow:"0 0 16px #e8c060" }} />
+                        </>
+                      )}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ padding:16 }}>
+                        <div style={{ width:44, height:44, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", background:isActive ? "rgba(196,154,60,.22)" : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? "rgba(196,154,60,.5)" : "rgba(196,154,60,.18)"}`, color:isActive ? "#e8c060" : "#c49a3c", transition:"all 300ms ease" }}>
+                          <Icon className="w-5 h-5" aria-hidden />
+                        </div>
+                        <div className="font-bold" style={{ fontSize:"clamp(13px,1.3vw,16px)", color:isActive ? "#f5f0e8" : "rgba(245,240,232,.75)", letterSpacing:"-0.01em", textAlign:"center" }}>
+                          {p.label}
+                        </div>
+                        <div className="flex items-center gap-1.5" aria-label="Agentes envolvidos">
+                          {p.agents.map(a => (
+                            <span key={a} aria-hidden style={{ width:7, height:7, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:isActive ? `0 0 8px ${AGENT_COLORS[a]}` : `0 0 4px ${AGENT_COLORS[a]}66`, transition:"box-shadow 300ms ease" }} />
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -1361,7 +1346,7 @@ export default function LandingPage() {
             </div>
 
             <p style={{ textAlign:"center", marginBottom:40, fontSize:11, fontStyle:"italic", color:"rgba(245,240,232,.35)" }}>
-              Todos os pilares operam em sincronia — um ecossistema, uma única operação.
+              Quatro agentes. Uma inteligência conectada — cinco pilares operando em sincronia.
             </p>
           </Reveal>
 
