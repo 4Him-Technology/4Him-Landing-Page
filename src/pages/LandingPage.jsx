@@ -415,7 +415,6 @@ export default function LandingPage() {
   const timelineView = useInView(timelineRef, 0.25);
 
   /* Tilt effects */
-  const eloTilt  = useTilt(7);
   const eloTilt  = useTilt(5);
   const hbelTilt = useTilt(7);
   const adTilt   = useTilt(7);
