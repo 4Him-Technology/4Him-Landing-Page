@@ -360,9 +360,9 @@ export default function LandingPage() {
       <div aria-hidden style={{ position:"absolute", top:"40%", right:"-10%", width:700, height:700, borderRadius:"50%", pointerEvents:"none", zIndex:0, background:"radial-gradient(circle,rgba(150,104,44,.09),transparent 60%)", filter:"blur(80px)", animation:"float2 35s ease-in-out infinite" }} />
       <div aria-hidden style={{ position:"absolute", bottom:"5%", left:"20%", width:500, height:500, borderRadius:"50%", pointerEvents:"none", zIndex:0, background:"radial-gradient(circle,rgba(196,154,60,.07),transparent 60%)", filter:"blur(70px)", animation:"float3 22s ease-in-out infinite" }} />
 
-      {/* dot grid */}
+      {/* grid background */}
       <div aria-hidden className="absolute inset-0 z-0 pointer-events-none" style={{
-        backgroundImage: "radial-gradient(rgba(150,104,44,.18) 1px, transparent 1px)",
+        backgroundImage: "linear-gradient(rgba(150,104,44,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(150,104,44,.12) 1px, transparent 1px)",
         backgroundSize: "40px 40px",
         maskImage: "radial-gradient(ellipse at 50% 0%, black 0%, transparent 70%)",
         WebkitMaskImage: "radial-gradient(ellipse at 50% 0%, black 0%, transparent 70%)",
