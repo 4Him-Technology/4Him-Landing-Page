@@ -416,6 +416,7 @@ export default function LandingPage() {
 
   /* Tilt effects */
   const eloTilt  = useTilt(7);
+  const eloTilt  = useTilt(5);
   const hbelTilt = useTilt(7);
   const adTilt   = useTilt(7);
   const mariTilt = useTilt(7);
@@ -907,7 +908,8 @@ export default function LandingPage() {
 
             {/* ELO4H */}
             <Reveal className="lg:col-span-2">
-              <div style={{ borderRadius:28, overflow:"hidden", height:"100%", background:"linear-gradient(155deg,rgba(150,104,44,.18),rgba(10,10,10,.75))", border:"1px solid rgba(196,154,60,.3)", boxShadow:"0 24px 64px -16px rgba(0,0,0,.7)", position:"relative" }}>
+              <div ref={eloTilt.ref} onMouseMove={eloTilt.onMouseMove} onMouseLeave={eloTilt.onMouseLeave}
+                style={{ borderRadius:28, overflow:"hidden", height:"100%", background:"linear-gradient(155deg,rgba(150,104,44,.18),rgba(10,10,10,.75))", border:"1px solid rgba(196,154,60,.3)", boxShadow:"0 24px 64px -16px rgba(0,0,0,.7)", position:"relative", transformStyle:"preserve-3d" }}>
 
                 <div aria-hidden style={{ position:"absolute", top:0, right:0, width:400, height:400, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.12),transparent 65%)", filter:"blur(50px)", pointerEvents:"none" }} />
 
