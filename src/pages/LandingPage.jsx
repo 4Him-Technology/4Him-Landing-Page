@@ -168,9 +168,9 @@ const TYPEWRITER_WORDS = [
 
 const AGENT_COLORS = {
   ELO4H:   "#c49a3c",
-  "4Hbel": "#a78bfa",
-  Ad4hn:   "#ec4899",
-  Mari4h:  "#34d399",
+  "4HBEL": "#a78bfa",
+  AD4HN:   "#ec4899",
+  MARI4H:  "#34d399",
 };
 
 function agentBorder(agents) {
@@ -200,67 +200,67 @@ const BOTTLENECKS = [
     metric: "3× mais capacidade sem contratar",
   },
   {
-    id: "leads", icon: Target, agents: ["ELO4H", "Ad4hn"],
+    id: "leads", icon: Target, agents: ["ELO4H", "AD4HN"],
     title: "Leads sem qualificação",
     pain: "Muitos contatos chegando, poucos convertendo. Tráfego desconectado da triagem comercial.",
-    product: "ELO4H — Comercial · Ad4hn — Performance",
-    solution: "Ad4hn entrega tráfego qualificado e ELO4H qualifica + faz follow-up. Só chega ao time comercial quem está pronto para fechar.",
+    product: "ELO4H — Comercial · AD4HN — Performance",
+    solution: "AD4HN entrega tráfego qualificado e ELO4H qualifica + faz follow-up. Só chega ao time comercial quem está pronto para fechar.",
     metric: "↑ taxa de conversão de ponta a ponta",
   },
   {
-    id: "dados", icon: BarChart3, agents: ["ELO4H", "4Hbel", "Ad4hn", "Mari4h"],
+    id: "dados", icon: BarChart3, agents: ["ELO4H", "4HBEL", "AD4HN", "MARI4H"],
     title: "Decisões sem dados reais",
     pain: "Gestão no escuro. Métricas espalhadas entre canais, financeiro, marketing e operação.",
     product: "Inteligência · todos os agentes",
-    solution: "Cada agente alimenta o dashboard central. ELO4H traz operação, 4Hbel traz financeiro, Ad4hn traz marketing e Mari4h costura o que faltar — uma única visão estratégica.",
+    solution: "Cada agente alimenta o dashboard central. ELO4H traz operação, 4HBEL traz financeiro, AD4HN traz marketing e MARI4H costura o que faltar — uma única visão estratégica.",
     metric: "→ decisão com dado de toda a operação",
   },
   {
-    id: "financeiro", icon: DollarSign, agents: ["4Hbel"],
+    id: "financeiro", icon: DollarSign, agents: ["4HBEL"],
     title: "Financeiro manual e lento",
     pain: "Conciliações demoradas, sem previsibilidade. BPO caro e ineficiente.",
-    product: "4Hbel — BPO Financeiro",
+    product: "4HBEL — BPO Financeiro",
     solution: "IA aplicada ao BPO financeiro. Automação de conciliações, relatórios automatizados e previsibilidade de fluxo de caixa.",
     metric: "↓ custo operacional financeiro",
   },
   {
-    id: "conciliacao", icon: LineChart, agents: ["4Hbel", "Mari4h"],
+    id: "conciliacao", icon: LineChart, agents: ["4HBEL", "MARI4H"],
     title: "Conciliação bancária imprecisa",
     pain: "Lançamentos manuais geram erros. Sistemas bancários e contábeis não conversam.",
-    product: "4Hbel — Conciliação · Mari4h — Integrações",
-    solution: "4Hbel automatiza conciliação e auditoria. Mari4h cria as integrações sob medida com seus bancos e ERP — fluxo end-to-end sem retrabalho.",
+    product: "4HBEL — Conciliação · MARI4H — Integrações",
+    solution: "4HBEL automatiza conciliação e auditoria. MARI4H cria as integrações sob medida com seus bancos e ERP — fluxo end-to-end sem retrabalho.",
     metric: "→ fechamento sem ajustes manuais",
   },
   {
-    id: "midias", icon: Megaphone, agents: ["Ad4hn", "ELO4H"],
+    id: "midias", icon: Megaphone, agents: ["AD4HN", "ELO4H"],
     title: "Mídias sociais sem estratégia",
     pain: "Publicações irregulares, comentários e DMs sem resposta. Marca perdida na timeline.",
-    product: "Ad4hn — Mídias · ELO4H — Atendimento",
-    solution: "Ad4hn planeja e publica conteúdo com tom de voz consistente. ELO4H responde DMs e comentários no mesmo padrão — engajamento que vira conversa.",
+    product: "AD4HN — Mídias · ELO4H — Atendimento",
+    solution: "AD4HN planeja e publica conteúdo com tom de voz consistente. ELO4H responde DMs e comentários no mesmo padrão — engajamento que vira conversa.",
     metric: "→ marca ativa e responsiva 24/7",
   },
   {
-    id: "trafego", icon: TrendingUp, agents: ["Ad4hn"],
+    id: "trafego", icon: TrendingUp, agents: ["AD4HN"],
     title: "Tráfego pago sem ROI",
     pain: "Verba queimada com criativos genéricos e públicos mal segmentados.",
-    product: "Ad4hn — Performance",
+    product: "AD4HN — Performance",
     solution: "Otimização contínua de criativos e segmentação automática. Cada anúncio é testado e ajustado para maximizar o retorno.",
     metric: "↑ retorno por real investido",
   },
   {
-    id: "custom", icon: Lightbulb, agents: ["Mari4h"],
+    id: "custom", icon: Lightbulb, agents: ["MARI4H"],
     title: "Tem um problema fora do padrão",
     pain: "A demanda não se encaixa em produto pronto. Você precisa de uma solução totalmente sob medida.",
-    product: "Mari4h — Soluções sob medida",
+    product: "MARI4H — Soluções sob medida",
     solution: "Agente de soluções customizadas. Se pode ser feito com IA, fazemos. Da automação inusitada à integração estratégica — o céu é o limite.",
     metric: "→ qualquer problema, qualquer escala",
   },
   {
-    id: "integracao", icon: Zap, agents: ["Mari4h", "ELO4H", "4Hbel", "Ad4hn"],
+    id: "integracao", icon: Zap, agents: ["MARI4H", "ELO4H", "4HBEL", "AD4HN"],
     title: "Sistemas que não conversam",
     pain: "Dados espalhados entre CRM, ERP, marketing e atendimento. Retrabalho em todos os times.",
-    product: "Mari4h orquestra · todos os agentes",
-    solution: "Mari4h conecta os sistemas e os outros agentes consomem os dados unificados. ELO4H, 4Hbel e Ad4hn passam a operar sobre uma única fonte de verdade.",
+    product: "MARI4H orquestra · todos os agentes",
+    solution: "MARI4H conecta os sistemas e os outros agentes consomem os dados unificados. ELO4H, 4HBEL e AD4HN passam a operar sobre uma única fonte de verdade.",
     metric: "→ um único fluxo para a empresa inteira",
   },
 ];
@@ -294,31 +294,31 @@ const PILLARS = [
     features: ["Disponível 24/7","WhatsApp · Instagram · Site","Leitura de áudio e imagem","Respostas humanizadas","Handoff para humano","Histórico completo"],
   },
   {
-    id: "comercial", label: "Comercial", agents: ["ELO4H", "Ad4hn"],
+    id: "comercial", label: "Comercial", agents: ["ELO4H", "AD4HN"],
     title: "Do anúncio à conversão — sem atrito",
-    desc: "Ad4hn entrega tráfego qualificado e ELO4H faz a triagem, qualificação e follow-up. Lead chega ao comercial pronto para fechar.",
+    desc: "AD4HN entrega tráfego qualificado e ELO4H faz a triagem, qualificação e follow-up. Lead chega ao comercial pronto para fechar.",
     features: ["Tráfego pago otimizado","Qualificação automática","Follow-up no tempo ideal","Agenda inteligente","Conversão monitorada","Integração com CRM"],
   },
   {
-    id: "inteligencia", label: "Inteligência", agents: ["ELO4H", "4Hbel", "Ad4hn", "Mari4h"],
+    id: "inteligencia", label: "Inteligência", agents: ["ELO4H", "4HBEL", "AD4HN", "MARI4H"],
     title: "Dados de toda a operação no mesmo dashboard",
     desc: "Cada agente alimenta a inteligência central — operação, financeiro, marketing e integrações sob medida. Decisão estratégica baseada na empresa inteira.",
     features: ["Métricas em tempo real","Operação · Financeiro · Marketing","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Visão única da empresa"],
   },
   {
-    id: "financeiro", label: "Financeiro", agents: ["4Hbel"],
+    id: "financeiro", label: "Financeiro", agents: ["4HBEL"],
     title: "BPO financeiro automatizado com IA",
     desc: "IA aplicada ao BPO financeiro. Conciliações automáticas, relatórios em tempo real e previsibilidade de fluxo de caixa.",
     features: ["Conciliação automática","Relatórios em tempo real","Previsibilidade de fluxo","Redução de custo operacional","Integração bancária","Auditoria contínua"],
   },
   {
-    id: "midias", label: "Mídias Sociais", agents: ["Ad4hn", "ELO4H"],
+    id: "midias", label: "Mídias Sociais", agents: ["AD4HN", "ELO4H"],
     title: "Conteúdo, tráfego e engajamento conectados",
-    desc: "Ad4hn cuida de criativos, calendário editorial e tráfego pago. ELO4H responde DMs e comentários com o mesmo tom de voz — marca ativa e responsiva.",
+    desc: "AD4HN cuida de criativos, calendário editorial e tráfego pago. ELO4H responde DMs e comentários com o mesmo tom de voz — marca ativa e responsiva.",
     features: ["Tráfego pago otimizado","Calendário editorial automático","Resposta de DMs e comentários","Gestão multi-plataforma","Tom de voz consistente","Métricas conectadas a vendas"],
   },
   {
-    id: "custom", label: "Customizado", agents: ["Mari4h"],
+    id: "custom", label: "Customizado", agents: ["MARI4H"],
     title: "Soluções de IA sob medida",
     desc: "Agente de soluções customizadas. Se pode ser feito com IA, fazemos. Da automação inusitada à integração estratégica — o céu é o limite.",
     features: ["Automações fora do padrão","Integrações sob medida","Casos de uso únicos","Prototipagem rápida com IA","Discovery completo","Suporte dedicado"],
@@ -1128,7 +1128,7 @@ export default function LandingPage() {
                     <LineChart className="w-3 h-3" aria-hidden /> BPO Financeiro · Novo
                   </div>
                   <div className="font-black" style={{ fontSize:44, letterSpacing:"-0.04em", lineHeight:0.9, background:"linear-gradient(135deg,#e0d7ff,#a78bfa)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:14 }}>
-                    4Hbel
+                    4HBEL
                   </div>
                   <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", marginBottom:20 }}>
                     IA aplicada ao BPO financeiro. Automação de conciliações, relatórios automáticos e previsibilidade de fluxo de caixa.
@@ -1146,7 +1146,7 @@ export default function LandingPage() {
                 </div>
               </Reveal>
 
-              {/* Ad4hn — mídias sociais */}
+              {/* AD4HN — mídias sociais */}
               <Reveal delay={160} className="flex-1">
                 <div ref={adTilt.ref} onMouseMove={adTilt.onMouseMove} onMouseLeave={adTilt.onMouseLeave}
                   className="relative overflow-hidden"
@@ -1161,7 +1161,7 @@ export default function LandingPage() {
                     <Megaphone className="w-3 h-3" aria-hidden /> Mídias sociais
                   </div>
                   <div className="font-black" style={{ fontSize:44, letterSpacing:"-0.04em", lineHeight:0.9, background:"linear-gradient(135deg,#fbcfe8,#ec4899)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:14 }}>
-                    Ad4hn
+                    AD4HN
                   </div>
                   <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", marginBottom:20 }}>
                     Agente de tráfego pago e gestão de conteúdo. Publica, otimiza criativos e conecta cada métrica ao funil comercial.
@@ -1179,7 +1179,7 @@ export default function LandingPage() {
                 </div>
               </Reveal>
 
-              {/* Mari4h — soluções customizadas */}
+              {/* MARI4H — soluções customizadas */}
               <Reveal delay={220} className="flex-1">
                 <div ref={mariTilt.ref} onMouseMove={mariTilt.onMouseMove} onMouseLeave={mariTilt.onMouseLeave}
                   className="relative overflow-hidden"
@@ -1195,7 +1195,7 @@ export default function LandingPage() {
                     <Lightbulb className="w-3 h-3" aria-hidden /> Soluções sob medida
                   </div>
                   <div className="font-black" style={{ fontSize:44, letterSpacing:"-0.04em", lineHeight:0.9, background:"linear-gradient(135deg,#a7f3d0,#10b981)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:14 }}>
-                    Mari4h
+                    MARI4H
                   </div>
                   <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", marginBottom:20 }}>
                     Agente de soluções customizadas. Se pode ser feito com IA, fazemos. O céu é o limite — qualquer problema, qualquer escala.
@@ -1491,9 +1491,9 @@ export default function LandingPage() {
               <div className="flex flex-col gap-2">
                 {[
                   { name:"ELO4H",  desc:"Atendimento · Comercial · Inteligência", color:"#c49a3c" },
-                  { name:"4Hbel",  desc:"BPO Financeiro",                          color:"#a78bfa" },
-                  { name:"Ad4hn",  desc:"Mídias Sociais · Tráfego pago",           color:"#ec4899" },
-                  { name:"Mari4h", desc:"Soluções customizadas com IA",            color:"#34d399" },
+                  { name:"4HBEL",  desc:"BPO Financeiro",                          color:"#a78bfa" },
+                  { name:"AD4HN",  desc:"Mídias Sociais · Tráfego pago",           color:"#ec4899" },
+                  { name:"MARI4H", desc:"Soluções customizadas com IA",            color:"#34d399" },
                 ].map(p => (
                   <div key={p.name} className="flex items-center gap-2.5"
                     style={{ padding:"7px 12px", borderRadius:10, background:"rgba(255,255,255,.025)", border:"1px solid rgba(255,255,255,.06)" }}>
@@ -1507,7 +1507,7 @@ export default function LandingPage() {
             </div>
 
             {[
-              ["Soluções", ["ELO4H","4Hbel","Ad4hn","Mari4h","Consultoria estratégica"]],
+              ["Soluções", ["ELO4H","4HBEL","AD4HN","MARI4H","Consultoria estratégica"]],
               ["Método",   ["Diagnóstico","Desenho","Implantação","Operação contínua"]],
               ["Contato",  [
                 { icon:MessageCircle, label:"+55 11 97451-4678",                    href:WHATSAPP_URL },
