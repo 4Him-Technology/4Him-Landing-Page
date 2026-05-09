@@ -3,7 +3,7 @@ import {
   ArrowRight, LayoutDashboard, Menu, X, ChevronUp, MessageCircle,
   MessageSquare, Target, BarChart3, DollarSign, Zap, TrendingUp,
   Mail, MapPin, Globe, Check, Clock, Sparkles, ChevronRight, Lock, Calendar,
-  CheckCircle2, Headphones, LineChart,
+  CheckCircle2, Headphones, LineChart, Bot,
 } from "lucide-react";
 
 const LOGO_ICON_URL = "/images/logo-icon.png";
@@ -235,6 +235,14 @@ const SECTORS = ["Saúde","Jurídico","Educação","Varejo","Serviços","Imobili
 const ORBIT_LEFT  = ["Atendimento 24h","Follow-up automático","Dashboard ao vivo"];
 const ORBIT_RIGHT = ["Multicanal","Agenda integrada","Qualificação de leads"];
 
+const CHAT = [
+  { role: "user", text: "Oi! Quero agendar uma consulta para amanhã." },
+  { role: "bot",  text: "Olá! Tenho horários disponíveis às 10h, 14h e 16h. Qual prefere?" },
+  { role: "user", text: "14h está ótimo!" },
+  { role: "bot",  text: "Perfeito! Consulta confirmada para amanhã às 14h. Enviarei um lembrete. 📅" },
+  { role: "bot",  text: "Posso ajudar com mais alguma coisa?" },
+];
+
 /* ─────────────────────────────────────────────────────────────
    Component
 ───────────────────────────────────────────────────────────── */
@@ -246,8 +254,17 @@ export default function LandingPage() {
   const [selected, setSelected] = useState(null);
   const [eloTab,   setEloTab]   = useState(0);
   const [pillar,   setPillar]   = useState(0);
+  const [chatStep, setChatStep] = useState(0);
 
   const typed = useTypewriter(TYPEWRITER_WORDS);
+
+  /* chat sequencer (LP2) */
+  useEffect(() => {
+    if (chatStep >= CHAT.length) return;
+    const delay = chatStep === 0 ? 900 : 1300;
+    const t = setTimeout(() => setChatStep(s => s + 1), delay);
+    return () => clearTimeout(t);
+  }, [chatStep]);
 
   /* Stats counters */
   const statsRef  = useRef(null);
@@ -311,6 +328,10 @@ export default function LandingPage() {
         @keyframes pulseRing  { 0%{ transform:scale(1);opacity:1 } 100%{ transform:scale(1.5);opacity:0 } }
         @keyframes ekgScroll  { from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
         @keyframes floatH     { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-12px) } }
+        @keyframes slideMsg   { from{ opacity:0;transform:translateY(8px) } to{ opacity:1;transform:translateY(0) } }
+        @keyframes typingDot  { 0%,80%,100%{ opacity:0 } 40%{ opacity:1 } }
+        @keyframes floatA     { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-8px) } }
+        @keyframes floatB     { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-10px) } }
 
         .lp-btn-primary { transition: transform 200ms ease, box-shadow 200ms ease; }
         .lp-btn-primary:hover { transform: scale(1.04); box-shadow: 0 12px 40px rgba(196,154,60,.5); }
@@ -691,23 +712,20 @@ export default function LandingPage() {
 
             {/* ELO4H */}
             <Reveal className="lg:col-span-2">
-              <div ref={eloTilt.ref} onMouseMove={eloTilt.onMouseMove} onMouseLeave={eloTilt.onMouseLeave}
-                style={{ borderRadius:28, overflow:"hidden", height:"100%", background:"linear-gradient(155deg,rgba(150,104,44,.18),rgba(10,10,10,.75))", border:"1px solid rgba(196,154,60,.3)", boxShadow:"0 24px 64px -16px rgba(0,0,0,.7)", transformStyle:"preserve-3d" }}>
+              <div style={{ borderRadius:28, overflow:"hidden", height:"100%", background:"linear-gradient(155deg,rgba(150,104,44,.18),rgba(10,10,10,.75))", border:"1px solid rgba(196,154,60,.3)", boxShadow:"0 24px 64px -16px rgba(0,0,0,.7)", position:"relative" }}>
 
+                <div aria-hidden style={{ position:"absolute", top:0, right:0, width:400, height:400, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.12),transparent 65%)", filter:"blur(50px)", pointerEvents:"none" }} />
+
+                {/* Header */}
                 <div style={{ padding:"32px 36px 0", position:"relative" }}>
-                  <div aria-hidden style={{ position:"absolute", top:0, right:0, width:300, height:300, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.15),transparent 65%)", filter:"blur(40px)" }} />
-                  <div className="flex items-start justify-between" style={{ marginBottom:20, position:"relative" }}>
-                    <div>
-                      <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(196,154,60,.12)", border:"1px solid rgba(196,154,60,.3)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#e8c060", marginBottom:14 }}>
-                        <span aria-hidden style={{ width:5, height:5, borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 6px #4ade80" }} />
-                        Produto principal · Ativo
-                      </div>
-                      <div className="font-black" style={{ fontSize:64, letterSpacing:"-0.04em", lineHeight:0.88, background:"linear-gradient(135deg,#f5f0e8 20%,#c49a3c 60%,#96682c 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
-                        ELO4H
-                      </div>
-                    </div>
+                  <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(196,154,60,.12)", border:"1px solid rgba(196,154,60,.3)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#e8c060", marginBottom:14 }}>
+                    <span aria-hidden style={{ width:5, height:5, borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 6px #4ade80" }} />
+                    Produto principal · Ativo
                   </div>
-                  <p style={{ fontSize:15, lineHeight:1.6, color:"rgba(245,240,232,.65)", maxWidth:500, marginBottom:28, position:"relative" }}>
+                  <div className="font-black" style={{ fontSize:64, letterSpacing:"-0.04em", lineHeight:0.88, background:"linear-gradient(135deg,#f5f0e8 20%,#c49a3c 60%,#96682c 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:16 }}>
+                    ELO4H
+                  </div>
+                  <p style={{ fontSize:15, lineHeight:1.6, color:"rgba(245,240,232,.65)", maxWidth:500, marginBottom:24 }}>
                     Nosso agente de atendimento e inteligência comercial. Carro-chefe da 4Him — normalmente a primeira implementação.
                   </p>
 
@@ -725,24 +743,152 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div id={`elo-panel-${eloTab}`} role="tabpanel" key={eloTab}
-                  style={{ padding:"28px 36px 36px", animation:"scaleIn 250ms ease" }}>
-                  <h3 className="font-bold" style={{ fontSize:"clamp(18px,2vw,26px)", color:"#f5f0e8", margin:"0 0 12px", letterSpacing:"-0.02em" }}>
-                    {ELO4H_TABS[eloTab].title}
-                  </h3>
-                  <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", margin:"0 0 24px", maxWidth:500 }}>
-                    {ELO4H_TABS[eloTab].desc}
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {ELO4H_TABS[eloTab].features.map((f, i) => (
-                      <div key={i} className="flex items-center gap-2"
-                        style={{ padding:"10px 12px", background:"rgba(10,10,10,.55)", border:"1px solid rgba(196,154,60,.1)", borderRadius:10, fontSize:12, color:"rgba(245,240,232,.82)" }}>
-                        <div aria-hidden style={{ width:14, height:14, borderRadius:4, background:"linear-gradient(135deg,#96682c,#c49a3c)", color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                          <Check className="w-2 h-2" strokeWidth={4} />
+                {/* Two-column body: text + chat mockup */}
+                <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start" style={{ padding:"32px 36px 40px", position:"relative" }}>
+
+                  {/* Left: tab content */}
+                  <div id={`elo-panel-${eloTab}`} role="tabpanel" key={eloTab} style={{ animation:"scaleIn 250ms ease" }}>
+                    <h3 className="font-bold" style={{ fontSize:"clamp(18px,2vw,26px)", color:"#f5f0e8", margin:"0 0 12px", letterSpacing:"-0.02em" }}>
+                      {ELO4H_TABS[eloTab].title}
+                    </h3>
+                    <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", margin:"0 0 24px" }}>
+                      {ELO4H_TABS[eloTab].desc}
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {ELO4H_TABS[eloTab].features.map((f, i) => (
+                        <div key={i} className="flex items-center gap-2"
+                          style={{ padding:"10px 12px", background:"rgba(10,10,10,.55)", border:"1px solid rgba(196,154,60,.1)", borderRadius:10, fontSize:12, color:"rgba(245,240,232,.82)" }}>
+                          <div aria-hidden style={{ width:14, height:14, borderRadius:4, background:"linear-gradient(135deg,#96682c,#c49a3c)", color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                            <Check className="w-2 h-2" strokeWidth={4} />
+                          </div>
+                          {f}
                         </div>
-                        {f}
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right: animated chat mockup (LP2) */}
+                  <div className="relative mx-auto lg:mx-0" style={{ maxWidth:480, width:"100%", animation:"floatB 7s ease-in-out infinite" }}>
+                    {/* window */}
+                    <div style={{
+                      borderRadius:24, overflow:"hidden",
+                      background:"rgba(10,10,10,.85)",
+                      border:"1px solid rgba(196,154,60,.22)",
+                      boxShadow:"0 40px 80px -20px rgba(0,0,0,.8), 0 0 60px rgba(196,154,60,.08)",
+                    }}>
+                      {/* chrome */}
+                      <div className="flex items-center justify-between"
+                        style={{ padding:"14px 18px", background:"rgba(5,5,5,.8)", borderBottom:"1px solid rgba(196,154,60,.1)" }}>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center"
+                            style={{ width:36, height:36, borderRadius:10, background:"linear-gradient(135deg,#96682c,#c49a3c)", boxShadow:"0 4px 12px rgba(196,154,60,.4)" }}>
+                            <Bot style={{ width:18, height:18, color:"#050505" }} aria-hidden />
+                          </div>
+                          <div>
+                            <div className="font-bold" style={{ fontSize:13, color:"#f5f0e8" }}>ELO4H</div>
+                            <div className="flex items-center gap-1.5" style={{ fontSize:11, color:"rgba(245,240,232,.5)" }}>
+                              <span aria-hidden style={{ width:6, height:6, borderRadius:"50%", background:"#4ade80", display:"inline-block", boxShadow:"0 0 8px #4ade80" }} />
+                              Online agora
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-1.5" aria-hidden>
+                          {["#ff5f57","#ffbd2e","#28c840"].map((c, i) => (
+                            <div key={i} style={{ width:10, height:10, borderRadius:"50%", background:c, opacity:.7 }} />
+                          ))}
+                        </div>
                       </div>
-                    ))}
+
+                      {/* messages */}
+                      <div style={{ padding:"18px 14px", minHeight:280, display:"flex", flexDirection:"column", gap:10 }}>
+                        {CHAT.slice(0, chatStep).map((msg, i) => (
+                          <div key={i} className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+                            style={{ animation:"slideMsg 280ms ease" }}>
+                            {msg.role === "bot" && (
+                              <div aria-hidden style={{
+                                width:28, height:28, borderRadius:8, flexShrink:0,
+                                background:"linear-gradient(135deg,#96682c,#c49a3c)",
+                                display:"flex", alignItems:"center", justifyContent:"center", alignSelf:"flex-end",
+                              }}>
+                                <Bot style={{ width:14, height:14, color:"#050505" }} />
+                              </div>
+                            )}
+                            <div style={{
+                              padding:"9px 13px", maxWidth:"78%", fontSize:13, lineHeight:1.5, color:"#f5f0e8",
+                              borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                              background: msg.role === "user" ? "linear-gradient(135deg,#96682c,#c49a3c)" : "rgba(28,28,28,.9)",
+                              border: msg.role === "bot" ? "1px solid rgba(196,154,60,.12)" : "none",
+                            }}>
+                              {msg.text}
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* typing indicator */}
+                        {chatStep < CHAT.length && chatStep > 0 && CHAT[chatStep].role === "bot" && (
+                          <div className="flex gap-2 items-end" aria-label="Digitando...">
+                            <div aria-hidden style={{
+                              width:28, height:28, borderRadius:8, flexShrink:0,
+                              background:"linear-gradient(135deg,#96682c,#c49a3c)",
+                              display:"flex", alignItems:"center", justifyContent:"center",
+                            }}>
+                              <Bot style={{ width:14, height:14, color:"#050505" }} />
+                            </div>
+                            <div style={{
+                              padding:"11px 14px", borderRadius:"18px 18px 18px 4px",
+                              background:"rgba(28,28,28,.9)", border:"1px solid rgba(196,154,60,.12)",
+                              display:"flex", gap:4, alignItems:"center",
+                            }}>
+                              {[0,1,2].map(i => (
+                                <span key={i} aria-hidden style={{
+                                  width:6, height:6, borderRadius:"50%", background:"#c49a3c",
+                                  animation:`typingDot 1.4s ease-in-out ${i * 0.22}s infinite`,
+                                }} />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* input bar */}
+                      <div style={{ padding:"12px 14px", borderTop:"1px solid rgba(196,154,60,.08)", display:"flex", gap:8, alignItems:"center" }}>
+                        <div style={{ flex:1, padding:"9px 14px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(196,154,60,.12)", borderRadius:100, fontSize:12, color:"rgba(245,240,232,.3)" }}>
+                          Digite uma mensagem...
+                        </div>
+                        <div aria-hidden style={{ width:34, height:34, borderRadius:"50%", background:"linear-gradient(135deg,#96682c,#c49a3c)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <ArrowRight style={{ width:14, height:14, color:"#050505" }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* floating badges */}
+                    <div aria-hidden style={{
+                      position:"absolute", top:-18, left:-28,
+                      padding:"10px 14px", borderRadius:14,
+                      background:"rgba(5,5,5,.92)", border:"1px solid rgba(196,154,60,.28)",
+                      backdropFilter:"blur(12px)", boxShadow:"0 8px 24px rgba(0,0,0,.5)",
+                      animation:"floatA 6s ease-in-out infinite",
+                    }}>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 style={{ width:15, height:15, color:"#4ade80" }} />
+                        <span style={{ fontSize:12, color:"#f5f0e8", fontWeight:600 }}>Consulta confirmada</span>
+                      </div>
+                      <div style={{ fontSize:10, color:"rgba(245,240,232,.4)", marginTop:2 }}>Amanhã às 14h · Dr. Carlos</div>
+                    </div>
+
+                    <div aria-hidden style={{
+                      position:"absolute", bottom:72, right:-36,
+                      padding:"10px 14px", borderRadius:14,
+                      background:"rgba(5,5,5,.92)", border:"1px solid rgba(196,154,60,.28)",
+                      backdropFilter:"blur(12px)", boxShadow:"0 8px 24px rgba(0,0,0,.5)",
+                      animation:"floatA 8s ease-in-out infinite 1.5s",
+                    }}>
+                      <div style={{ fontSize:10, color:"rgba(245,240,232,.4)", marginBottom:4 }}>Hoje · 23:47</div>
+                      <div className="flex items-center gap-2">
+                        <span style={{ width:6, height:6, borderRadius:"50%", background:"#e8c060", boxShadow:"0 0 8px #e8c060" }} />
+                        <span style={{ fontSize:12, color:"#f5f0e8", fontWeight:600 }}>4 leads qualificados</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
