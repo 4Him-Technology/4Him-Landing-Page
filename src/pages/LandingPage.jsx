@@ -166,10 +166,33 @@ const TYPEWRITER_WORDS = [
   "gera inteligência estratégica.",
 ];
 
+const AGENT_COLORS = {
+  ELO4H:   "#c49a3c",
+  "4Hbel": "#a78bfa",
+  Ad4hn:   "#ec4899",
+  Mari4h:  "#34d399",
+};
+
+function agentBorder(agents) {
+  const colors = agents.map(a => AGENT_COLORS[a]);
+  if (colors.length === 1) return colors[0];
+  const stops = [];
+  colors.forEach((c, i) => {
+    const start = (i / colors.length) * 100;
+    const end = ((i + 1) / colors.length) * 100;
+    stops.push(`${c} ${start}%`, `${c} ${end}%`);
+  });
+  return `linear-gradient(135deg, ${stops.join(", ")})`;
+}
+
+function agentLabel(agents) {
+  if (agents.length === 4) return "Todos os agentes";
+  return agents.join(" + ");
+}
+
 const BOTTLENECKS = [
-  // ELO4H — gold
   {
-    id: "atendimento", icon: MessageSquare, color: "#c49a3c", agent: "ELO4H",
+    id: "atendimento", icon: MessageSquare, agents: ["ELO4H"],
     title: "Atendimento sobrecarregado",
     pain: "Equipe não dá conta do volume. Respostas lentas, clientes perdidos.",
     product: "ELO4H — Atendimento",
@@ -177,24 +200,23 @@ const BOTTLENECKS = [
     metric: "3× mais capacidade sem contratar",
   },
   {
-    id: "leads", icon: Target, color: "#c49a3c", agent: "ELO4H",
+    id: "leads", icon: Target, agents: ["ELO4H", "Ad4hn"],
     title: "Leads sem qualificação",
-    pain: "Muitos contatos chegando, poucos convertendo. Triagem manual ineficiente.",
-    product: "ELO4H — Comercial",
-    solution: "Qualificação automática + follow-up no tempo ideal. Só chega ao time comercial quem está pronto para fechar.",
-    metric: "↑ taxa de conversão automatizada",
+    pain: "Muitos contatos chegando, poucos convertendo. Tráfego desconectado da triagem comercial.",
+    product: "ELO4H — Comercial · Ad4hn — Performance",
+    solution: "Ad4hn entrega tráfego qualificado e ELO4H qualifica + faz follow-up. Só chega ao time comercial quem está pronto para fechar.",
+    metric: "↑ taxa de conversão de ponta a ponta",
   },
   {
-    id: "dados", icon: BarChart3, color: "#c49a3c", agent: "ELO4H",
+    id: "dados", icon: BarChart3, agents: ["ELO4H", "4Hbel", "Ad4hn", "Mari4h"],
     title: "Decisões sem dados reais",
-    pain: "Gestão no escuro. Sem métricas em tempo real por canal ou unidade.",
-    product: "ELO4H — Inteligência",
-    solution: "Dashboard em tempo real com métricas por canal, unidade e campanha. Recomendações estratégicas do agente antes da decisão.",
-    metric: "→ dados antes de toda decisão",
+    pain: "Gestão no escuro. Métricas espalhadas entre canais, financeiro, marketing e operação.",
+    product: "Inteligência · todos os agentes",
+    solution: "Cada agente alimenta o dashboard central. ELO4H traz operação, 4Hbel traz financeiro, Ad4hn traz marketing e Mari4h costura o que faltar — uma única visão estratégica.",
+    metric: "→ decisão com dado de toda a operação",
   },
-  // 4Hbel — purple
   {
-    id: "financeiro", icon: DollarSign, color: "#a78bfa", agent: "4Hbel",
+    id: "financeiro", icon: DollarSign, agents: ["4Hbel"],
     title: "Financeiro manual e lento",
     pain: "Conciliações demoradas, sem previsibilidade. BPO caro e ineficiente.",
     product: "4Hbel — BPO Financeiro",
@@ -202,33 +224,31 @@ const BOTTLENECKS = [
     metric: "↓ custo operacional financeiro",
   },
   {
-    id: "conciliacao", icon: LineChart, color: "#a78bfa", agent: "4Hbel",
+    id: "conciliacao", icon: LineChart, agents: ["4Hbel", "Mari4h"],
     title: "Conciliação bancária imprecisa",
-    pain: "Lançamentos manuais geram erros. Auditoria custosa e fora do tempo certo.",
-    product: "4Hbel — Conciliação",
-    solution: "Conciliação automatizada com integração bancária. Auditoria contínua, classificações inteligentes e relatórios prontos para gestão.",
-    metric: "→ fechamento sem retrabalho",
+    pain: "Lançamentos manuais geram erros. Sistemas bancários e contábeis não conversam.",
+    product: "4Hbel — Conciliação · Mari4h — Integrações",
+    solution: "4Hbel automatiza conciliação e auditoria. Mari4h cria as integrações sob medida com seus bancos e ERP — fluxo end-to-end sem retrabalho.",
+    metric: "→ fechamento sem ajustes manuais",
   },
-  // Ad4hn — pink
   {
-    id: "midias", icon: Megaphone, color: "#ec4899", agent: "Ad4hn",
+    id: "midias", icon: Megaphone, agents: ["Ad4hn", "ELO4H"],
     title: "Mídias sociais sem estratégia",
-    pain: "Publicações irregulares e métricas sem conexão com vendas. A marca fica perdida.",
-    product: "Ad4hn — Mídias Sociais",
-    solution: "Agente que planeja, publica e gerencia conteúdo multi-plataforma com tom de voz consistente — cada post conectado ao objetivo de negócio.",
-    metric: "→ marca consistente em todos os canais",
+    pain: "Publicações irregulares, comentários e DMs sem resposta. Marca perdida na timeline.",
+    product: "Ad4hn — Mídias · ELO4H — Atendimento",
+    solution: "Ad4hn planeja e publica conteúdo com tom de voz consistente. ELO4H responde DMs e comentários no mesmo padrão — engajamento que vira conversa.",
+    metric: "→ marca ativa e responsiva 24/7",
   },
   {
-    id: "trafego", icon: TrendingUp, color: "#ec4899", agent: "Ad4hn",
+    id: "trafego", icon: TrendingUp, agents: ["Ad4hn"],
     title: "Tráfego pago sem ROI",
     pain: "Verba queimada com criativos genéricos e públicos mal segmentados.",
     product: "Ad4hn — Performance",
     solution: "Otimização contínua de criativos e segmentação automática. Cada anúncio é testado e ajustado para maximizar o retorno.",
     metric: "↑ retorno por real investido",
   },
-  // Mari4h — green
   {
-    id: "custom", icon: Lightbulb, color: "#34d399", agent: "Mari4h",
+    id: "custom", icon: Lightbulb, agents: ["Mari4h"],
     title: "Tem um problema fora do padrão",
     pain: "A demanda não se encaixa em produto pronto. Você precisa de uma solução totalmente sob medida.",
     product: "Mari4h — Soluções sob medida",
@@ -236,12 +256,12 @@ const BOTTLENECKS = [
     metric: "→ qualquer problema, qualquer escala",
   },
   {
-    id: "integracao", icon: Zap, color: "#34d399", agent: "Mari4h",
+    id: "integracao", icon: Zap, agents: ["Mari4h", "ELO4H", "4Hbel", "Ad4hn"],
     title: "Sistemas que não conversam",
-    pain: "Dados espalhados, retrabalho entre ferramentas e operações duplicadas no dia a dia.",
-    product: "Mari4h — Integrações",
-    solution: "Integrações sob medida entre seus sistemas. Pipelines de dados, sincronização em tempo real e automações end-to-end.",
-    metric: "→ um único fluxo, zero retrabalho",
+    pain: "Dados espalhados entre CRM, ERP, marketing e atendimento. Retrabalho em todos os times.",
+    product: "Mari4h orquestra · todos os agentes",
+    solution: "Mari4h conecta os sistemas e os outros agentes consomem os dados unificados. ELO4H, 4Hbel e Ad4hn passam a operar sobre uma única fonte de verdade.",
+    metric: "→ um único fluxo para a empresa inteira",
   },
 ];
 
@@ -268,37 +288,37 @@ const ELO4H_TABS = [
 
 const PILLARS = [
   {
-    id: "atendimento", label: "Atendimento", agent: "ELO4H",
+    id: "atendimento", label: "Atendimento", agents: ["ELO4H"],
     title: "Atendimento 24h que não perde oportunidade",
     desc: "Um agente treinado no seu negócio responde clientes a qualquer hora, em qualquer canal — com o mesmo tom de voz da sua empresa.",
     features: ["Disponível 24/7","WhatsApp · Instagram · Site","Leitura de áudio e imagem","Respostas humanizadas","Handoff para humano","Histórico completo"],
   },
   {
-    id: "comercial", label: "Comercial", agent: "ELO4H",
-    title: "Qualificação e conversão automatizadas",
-    desc: "Triagem automática de leads, follow-up no tempo certo e agendamento integrado — sem aumentar a equipe.",
-    features: ["Qualificação automática","Follow-up no tempo ideal","Agenda inteligente","Zero conflito de horário","Conversão monitorada","Integração com CRM"],
+    id: "comercial", label: "Comercial", agents: ["ELO4H", "Ad4hn"],
+    title: "Do anúncio à conversão — sem atrito",
+    desc: "Ad4hn entrega tráfego qualificado e ELO4H faz a triagem, qualificação e follow-up. Lead chega ao comercial pronto para fechar.",
+    features: ["Tráfego pago otimizado","Qualificação automática","Follow-up no tempo ideal","Agenda inteligente","Conversão monitorada","Integração com CRM"],
   },
   {
-    id: "inteligencia", label: "Inteligência", agent: "ELO4H",
-    title: "Dados que viram decisão",
-    desc: "Dashboard em tempo real com métricas por unidade, canal e campanha. Recomendações estratégicas baseadas na operação real.",
-    features: ["Métricas em tempo real","Análise por unidade/canal","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Base para o gestor"],
+    id: "inteligencia", label: "Inteligência", agents: ["ELO4H", "4Hbel", "Ad4hn", "Mari4h"],
+    title: "Dados de toda a operação no mesmo dashboard",
+    desc: "Cada agente alimenta a inteligência central — operação, financeiro, marketing e integrações sob medida. Decisão estratégica baseada na empresa inteira.",
+    features: ["Métricas em tempo real","Operação · Financeiro · Marketing","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Visão única da empresa"],
   },
   {
-    id: "financeiro", label: "Financeiro", agent: "4Hbel",
+    id: "financeiro", label: "Financeiro", agents: ["4Hbel"],
     title: "BPO financeiro automatizado com IA",
     desc: "IA aplicada ao BPO financeiro. Conciliações automáticas, relatórios em tempo real e previsibilidade de fluxo de caixa.",
     features: ["Conciliação automática","Relatórios em tempo real","Previsibilidade de fluxo","Redução de custo operacional","Integração bancária","Auditoria contínua"],
   },
   {
-    id: "midias", label: "Mídias Sociais", agent: "Ad4hn",
-    title: "Tráfego pago e gestão de conteúdo",
-    desc: "Agente de mídias sociais que gerencia tráfego pago, planeja e publica conteúdo, otimiza criativos e conecta cada métrica ao funil comercial.",
-    features: ["Tráfego pago otimizado","Calendário editorial automático","Gestão multi-plataforma","Métricas conectadas a vendas","Otimização de criativos","Relatórios de ROAS"],
+    id: "midias", label: "Mídias Sociais", agents: ["Ad4hn", "ELO4H"],
+    title: "Conteúdo, tráfego e engajamento conectados",
+    desc: "Ad4hn cuida de criativos, calendário editorial e tráfego pago. ELO4H responde DMs e comentários com o mesmo tom de voz — marca ativa e responsiva.",
+    features: ["Tráfego pago otimizado","Calendário editorial automático","Resposta de DMs e comentários","Gestão multi-plataforma","Tom de voz consistente","Métricas conectadas a vendas"],
   },
   {
-    id: "custom", label: "Customizado", agent: "Mari4h",
+    id: "custom", label: "Customizado", agents: ["Mari4h"],
     title: "Soluções de IA sob medida",
     desc: "Agente de soluções customizadas. Se pode ser feito com IA, fazemos. Da automação inusitada à integração estratégica — o céu é o limite.",
     features: ["Automações fora do padrão","Integrações sob medida","Casos de uso únicos","Prototipagem rápida com IA","Discovery completo","Suporte dedicado"],
@@ -791,68 +811,92 @@ export default function LandingPage() {
             {BOTTLENECKS.map((b, i) => {
               const Icon = b.icon;
               const isActive = selected === b.id;
+              const primary = AGENT_COLORS[b.agents[0]];
+              const borderBg = agentBorder(b.agents);
+              const thickness = isActive ? 2 : 1;
               return (
                 <Reveal key={b.id} delay={i * 60}>
-                  <button onClick={() => setSelected(isActive ? null : b.id)}
-                    aria-pressed={isActive}
-                    className="lp-bcard w-full text-left h-full"
-                    style={{
-                      padding:"26px 28px", borderRadius:20,
-                      background: isActive
-                        ? `linear-gradient(155deg,${b.color}18,rgba(10,10,10,.85))`
-                        : "linear-gradient(155deg,rgba(196,154,60,.04),rgba(10,10,10,.85))",
-                      border: isActive ? `1px solid ${b.color}` : "1px solid rgba(196,154,60,.14)",
-                      boxShadow: isActive ? `0 0 40px ${b.color}22, 0 16px 32px rgba(0,0,0,.5)` : "0 8px 24px rgba(0,0,0,.3)",
-                    }}>
-                    <div className="flex items-start gap-4">
-                      <div style={{ width:42, height:42, borderRadius:12, flexShrink:0, background:isActive ? `${b.color}22` : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? b.color : "rgba(196,154,60,.18)"}`, display:"flex", alignItems:"center", justifyContent:"center", color:isActive ? b.color : "#c49a3c", transition:"all 220ms ease" }}>
-                        <Icon style={{ width:18, height:18 }} aria-hidden />
-                      </div>
-                      <div style={{ flex:1, minWidth:0 }}>
-                        <div className="font-bold" style={{ fontSize:15, color:isActive ? "#f5f0e8" : "rgba(245,240,232,.92)", marginBottom:6, letterSpacing:"-0.01em" }}>
-                          {b.title}
+                  <div style={{ borderRadius:20, padding:thickness, background:borderBg, boxShadow: isActive ? `0 0 40px ${primary}33, 0 16px 32px rgba(0,0,0,.5)` : "0 8px 24px rgba(0,0,0,.3)", height:"100%" }}>
+                    <button onClick={() => setSelected(isActive ? null : b.id)}
+                      aria-pressed={isActive}
+                      className="lp-bcard w-full text-left h-full"
+                      style={{
+                        padding:"26px 28px", borderRadius:20 - thickness,
+                        background: isActive
+                          ? `linear-gradient(155deg,${primary}18,rgba(10,10,10,.95))`
+                          : "linear-gradient(155deg,rgba(10,10,10,.92),rgba(10,10,10,.96))",
+                      }}>
+                      <div className="flex items-start gap-4">
+                        <div style={{ width:42, height:42, borderRadius:12, flexShrink:0, background:isActive ? `${primary}22` : `${primary}10`, border:`1px solid ${isActive ? primary : `${primary}55`}`, display:"flex", alignItems:"center", justifyContent:"center", color:isActive ? primary : `${primary}cc`, transition:"all 220ms ease" }}>
+                          <Icon style={{ width:18, height:18 }} aria-hidden />
                         </div>
-                        <div style={{ fontSize:13, lineHeight:1.6, color:"rgba(245,240,232,.55)" }}>{b.pain}</div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div className="font-bold" style={{ fontSize:15, color:isActive ? "#f5f0e8" : "rgba(245,240,232,.92)", marginBottom:6, letterSpacing:"-0.01em" }}>
+                            {b.title}
+                          </div>
+                          <div style={{ fontSize:13, lineHeight:1.6, color:"rgba(245,240,232,.55)", marginBottom:b.agents.length > 1 ? 10 : 0 }}>{b.pain}</div>
+                          {b.agents.length > 1 && (
+                            <div className="flex items-center gap-1.5 flex-wrap" aria-label="Agentes envolvidos">
+                              {b.agents.map(a => (
+                                <span key={a} style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"2px 8px", borderRadius:100, background:`${AGENT_COLORS[a]}18`, border:`1px solid ${AGENT_COLORS[a]}55`, fontSize:10, fontWeight:700, color:AGENT_COLORS[a], letterSpacing:"0.04em" }}>
+                                  <span style={{ width:5, height:5, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:`0 0 6px ${AGENT_COLORS[a]}` }} aria-hidden />
+                                  {a}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <ChevronRight className="w-4 h-4 shrink-0 mt-0.5" aria-hidden
+                          style={{ color:isActive ? primary : "rgba(245,240,232,.35)", transform:isActive ? "rotate(90deg)" : "", transition:"transform 220ms ease" }} />
                       </div>
-                      <ChevronRight className="w-4 h-4 shrink-0 mt-0.5" aria-hidden
-                        style={{ color:isActive ? b.color : "rgba(196,154,60,.35)", transform:isActive ? "rotate(90deg)" : "", transition:"transform 220ms ease" }} />
-                    </div>
-                  </button>
+                    </button>
+                  </div>
                 </Reveal>
               );
             })}
           </div>
 
           {/* solution panel */}
-          {selected && activeBG && (
-            <div style={{ animation:"slidePanel 320ms cubic-bezier(.34,1.4,.64,1)" }}>
-              <div style={{ padding:"clamp(24px,4vw,40px)", borderRadius:24, background:`linear-gradient(135deg,${activeBG.color}14,rgba(10,10,10,.7))`, border:`1px solid ${activeBG.color}55`, boxShadow:`0 0 60px ${activeBG.color}18, 0 24px 48px rgba(0,0,0,.5)` }}>
-                <div className="grid gap-8 md:grid-cols-[1fr_auto]">
-                  <div>
-                    <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"5px 12px", borderRadius:100, marginBottom:18, background:`${activeBG.color}18`, border:`1px solid ${activeBG.color}44`, fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:activeBG.color }}>
-                      {activeBG.product}
+          {selected && activeBG && (() => {
+            const primary = AGENT_COLORS[activeBG.agents[0]];
+            const borderBg = agentBorder(activeBG.agents);
+            return (
+              <div style={{ animation:"slidePanel 320ms cubic-bezier(.34,1.4,.64,1)" }}>
+                <div style={{ borderRadius:24, padding:2, background:borderBg, boxShadow:`0 0 60px ${primary}22, 0 24px 48px rgba(0,0,0,.5)` }}>
+                  <div style={{ padding:"clamp(24px,4vw,40px)", borderRadius:22, background:`linear-gradient(135deg,${primary}10,rgba(10,10,10,.92))` }}>
+                    <div className="grid gap-8 md:grid-cols-[1fr_auto]">
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom:18 }}>
+                          {activeBG.agents.map(a => (
+                            <span key={a} style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"5px 12px", borderRadius:100, background:`${AGENT_COLORS[a]}18`, border:`1px solid ${AGENT_COLORS[a]}55`, fontSize:11, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", color:AGENT_COLORS[a] }}>
+                              <span style={{ width:6, height:6, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:`0 0 8px ${AGENT_COLORS[a]}` }} aria-hidden />
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                        <h3 className="font-bold" style={{ fontSize:"clamp(20px,3vw,32px)", color:"#f5f0e8", margin:"0 0 14px", letterSpacing:"-0.02em" }}>
+                          Como resolvemos esse desafio
+                        </h3>
+                        <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.7)", margin:"0 0 20px", maxWidth:600 }}>
+                          {activeBG.solution}
+                        </p>
+                        <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"8px 16px", borderRadius:100, background:`${primary}10`, border:`1px solid ${primary}30`, fontSize:13, color:primary, fontWeight:700 }}>
+                          <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden />
+                          {activeBG.metric}
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full whitespace-nowrap"
+                          style={{ padding:"16px 28px", background:`linear-gradient(135deg,${primary},${primary}cc)`, color:"#050505", fontSize:14, boxShadow:`0 8px 28px ${primary}66` }}>
+                          Quero essa solução →
+                        </button>
+                      </div>
                     </div>
-                    <h3 className="font-bold" style={{ fontSize:"clamp(20px,3vw,32px)", color:"#f5f0e8", margin:"0 0 14px", letterSpacing:"-0.02em" }}>
-                      Como resolvemos esse desafio
-                    </h3>
-                    <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.7)", margin:"0 0 20px", maxWidth:600 }}>
-                      {activeBG.solution}
-                    </p>
-                    <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"8px 16px", borderRadius:100, background:`${activeBG.color}10`, border:`1px solid ${activeBG.color}30`, fontSize:13, color:activeBG.color, fontWeight:700 }}>
-                      <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden />
-                      {activeBG.metric}
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full whitespace-nowrap"
-                      style={{ padding:"16px 28px", background:`linear-gradient(135deg,${activeBG.color},${activeBG.color}cc)`, color:"#050505", fontSize:14, boxShadow:`0 8px 28px ${activeBG.color}66` }}>
-                      Quero essa solução →
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </section>
 
@@ -1282,33 +1326,45 @@ export default function LandingPage() {
               {PILLARS.map((p, i) => {
                 const Icon = PILLAR_ICONS[i];
                 const isActive = pillar === i;
+                const primary = AGENT_COLORS[p.agents[0]];
+                const borderBg = agentBorder(p.agents);
+                const thickness = isActive ? 2 : 1;
                 return (
                   <button key={p.id} onClick={() => setPillar(i)} className="group relative">
-                    <div className="relative overflow-hidden" style={{
-                      height:"clamp(120px,16vw,160px)", borderRadius:18,
-                      background: isActive ? "linear-gradient(180deg,rgba(196,154,60,.18),rgba(196,154,60,.02))" : "rgba(10,10,10,.6)",
-                      border: isActive ? "1px solid rgba(196,154,60,.6)" : "1px solid rgba(196,154,60,.14)",
-                      transition: "all 400ms ease",
-                    }}>
-                      {isActive && (
-                        <>
-                          <div aria-hidden style={{ position:"absolute", inset:0, background:"linear-gradient(180deg,transparent,rgba(196,154,60,.12),transparent)", animation:"scanV 3s ease-in-out infinite", opacity:.6 }} />
-                          <div aria-hidden style={{ position:"absolute", top:-2, left:"50%", transform:"translateX(-50%)", width:3, height:8, borderRadius:2, background:"#e8c060", boxShadow:"0 0 16px #e8c060" }} />
-                        </>
-                      )}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ padding:16 }}>
-                        <div style={{ width:44, height:44, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", background:isActive ? "rgba(196,154,60,.22)" : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? "rgba(196,154,60,.5)" : "rgba(196,154,60,.18)"}`, color:isActive ? "#e8c060" : "#c49a3c", transition:"all 300ms ease" }}>
-                          <Icon className="w-5 h-5" aria-hidden />
-                        </div>
-                        <div className="font-bold" style={{ fontSize:"clamp(14px,1.4vw,17px)", color:isActive ? "#f5f0e8" : "rgba(245,240,232,.75)", letterSpacing:"-0.01em", textAlign:"center" }}>
-                          {p.label}
-                        </div>
-                        <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:isActive ? "#e8c060" : "rgba(245,240,232,.4)", transition:"color 300ms ease" }}>
-                          {p.agent}
+                    <div style={{ borderRadius:18, padding:thickness, background:borderBg, transition:"all 400ms ease" }}>
+                      <div className="relative overflow-hidden" style={{
+                        height:"clamp(120px,16vw,160px)", borderRadius:18 - thickness,
+                        background: isActive ? `linear-gradient(180deg,${primary}22,${primary}05)` : "rgba(10,10,10,.85)",
+                        transition: "all 400ms ease",
+                      }}>
+                        {isActive && (
+                          <>
+                            <div aria-hidden style={{ position:"absolute", inset:0, background:`linear-gradient(180deg,transparent,${primary}1f,transparent)`, animation:"scanV 3s ease-in-out infinite", opacity:.6 }} />
+                            <div aria-hidden style={{ position:"absolute", top:-2, left:"50%", transform:"translateX(-50%)", width:3, height:8, borderRadius:2, background:primary, boxShadow:`0 0 16px ${primary}` }} />
+                          </>
+                        )}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ padding:16 }}>
+                          <div style={{ width:44, height:44, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", background:isActive ? `${primary}33` : `${primary}12`, border:`1px solid ${isActive ? primary : `${primary}55`}`, color:isActive ? primary : `${primary}cc`, transition:"all 300ms ease" }}>
+                            <Icon className="w-5 h-5" aria-hidden />
+                          </div>
+                          <div className="font-bold" style={{ fontSize:"clamp(14px,1.4vw,17px)", color:isActive ? "#f5f0e8" : "rgba(245,240,232,.75)", letterSpacing:"-0.01em", textAlign:"center" }}>
+                            {p.label}
+                          </div>
+                          {p.agents.length === 1 ? (
+                            <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:isActive ? primary : `${primary}aa`, transition:"color 300ms ease" }}>
+                              {p.agents[0]}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              {p.agents.map(a => (
+                                <span key={a} aria-hidden style={{ width:6, height:6, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:isActive ? `0 0 6px ${AGENT_COLORS[a]}` : "none", transition:"box-shadow 300ms ease" }} />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-                    <div style={{ marginTop:10, fontFamily:"monospace", fontSize:10, letterSpacing:"0.2em", color:isActive ? "#c49a3c" : "rgba(245,240,232,.3)", textAlign:"center", transition:"color 300ms ease" }}>
+                    <div style={{ marginTop:10, fontFamily:"monospace", fontSize:10, letterSpacing:"0.2em", color:isActive ? primary : "rgba(245,240,232,.3)", textAlign:"center", transition:"color 300ms ease" }}>
                       PILAR · {String(i+1).padStart(2,"0")}
                     </div>
                   </button>
@@ -1322,44 +1378,61 @@ export default function LandingPage() {
           </Reveal>
 
           {/* Active pillar content */}
-          <div key={pillar} style={{ animation:"slidePanel 400ms cubic-bezier(.34,1.4,.64,1)" }}>
-            <div style={{ padding:"clamp(28px,4vw,48px)", borderRadius:28, background:"linear-gradient(135deg,rgba(196,154,60,.08),rgba(10,10,10,.85))", border:"1px solid rgba(196,154,60,.25)", boxShadow:"0 0 80px rgba(196,154,60,.08), 0 24px 48px rgba(0,0,0,.5)", position:"relative", overflow:"hidden" }}>
-              <div aria-hidden style={{ position:"absolute", top:-100, right:-100, width:380, height:380, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.18),transparent 60%)", filter:"blur(50px)" }} />
+          {(() => {
+            const p = PILLARS[pillar];
+            const primary = AGENT_COLORS[p.agents[0]];
+            const borderBg = agentBorder(p.agents);
+            return (
+              <div key={pillar} style={{ animation:"slidePanel 400ms cubic-bezier(.34,1.4,.64,1)" }}>
+                <div style={{ borderRadius:28, padding:2, background:borderBg, boxShadow:`0 0 80px ${primary}1a, 0 24px 48px rgba(0,0,0,.5)` }}>
+                  <div style={{ padding:"clamp(28px,4vw,48px)", borderRadius:26, background:`linear-gradient(135deg,${primary}10,rgba(10,10,10,.92))`, position:"relative", overflow:"hidden" }}>
+                    <div aria-hidden style={{ position:"absolute", top:-100, right:-100, width:380, height:380, borderRadius:"50%", background:`radial-gradient(circle,${primary}28,transparent 60%)`, filter:"blur(50px)" }} />
 
-              <div className="relative grid md:grid-cols-2 gap-10 items-start">
-                <div>
-                  <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"6px 14px", borderRadius:100, marginBottom:20, background:"rgba(196,154,60,.12)", border:"1px solid rgba(196,154,60,.35)", fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"#e8c060" }}>
-                    <PIcon className="w-3.5 h-3.5" aria-hidden />
-                    Pilar · {PILLARS[pillar].label}
-                  </div>
-                  <h3 className="font-bold" style={{ fontSize:"clamp(22px,2.8vw,32px)", color:"#f5f0e8", margin:"0 0 16px", letterSpacing:"-0.02em", lineHeight:1.15 }}>
-                    {PILLARS[pillar].title}
-                  </h3>
-                  <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.65)", margin:"0 0 28px" }}>
-                    {PILLARS[pillar].desc}
-                  </p>
-                  <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full"
-                    style={{ padding:"14px 26px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:13, boxShadow:"0 8px 28px rgba(196,154,60,.45)" }}>
-                    Conversar sobre o seu caso →
-                  </button>
-                </div>
-                <div>
-                  <div className="uppercase" style={{ fontSize:10, letterSpacing:"0.28em", color:"rgba(245,240,232,.45)", marginBottom:18 }}>O que está incluso</div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {PILLARS[pillar].features.map((f, i) => (
-                      <div key={i} className="flex items-center gap-3"
-                        style={{ padding:"12px 14px", background:"rgba(5,5,5,.5)", border:"1px solid rgba(196,154,60,.14)", borderRadius:12, fontSize:13, color:"rgba(245,240,232,.85)", animation:`fadeIn4h 350ms ease ${i*60}ms both` }}>
-                        <div aria-hidden style={{ width:18, height:18, borderRadius:6, background:"linear-gradient(135deg,#96682c,#c49a3c)", color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                          <Check className="w-2.5 h-2.5" strokeWidth={4} />
+                    <div className="relative grid md:grid-cols-2 gap-10 items-start">
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom:20 }}>
+                          <span style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"6px 14px", borderRadius:100, background:`${primary}18`, border:`1px solid ${primary}55`, fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:primary }}>
+                            <PIcon className="w-3.5 h-3.5" aria-hidden />
+                            Pilar · {p.label}
+                          </span>
+                          {p.agents.map(a => (
+                            <span key={a} style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"5px 12px", borderRadius:100, background:`${AGENT_COLORS[a]}15`, border:`1px solid ${AGENT_COLORS[a]}55`, fontSize:11, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", color:AGENT_COLORS[a] }}>
+                              <span style={{ width:6, height:6, borderRadius:"50%", background:AGENT_COLORS[a], boxShadow:`0 0 8px ${AGENT_COLORS[a]}` }} aria-hidden />
+                              {a}
+                            </span>
+                          ))}
                         </div>
-                        {f}
+                        <h3 className="font-bold" style={{ fontSize:"clamp(22px,2.8vw,32px)", color:"#f5f0e8", margin:"0 0 16px", letterSpacing:"-0.02em", lineHeight:1.15 }}>
+                          {p.title}
+                        </h3>
+                        <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.65)", margin:"0 0 28px" }}>
+                          {p.desc}
+                        </p>
+                        <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full"
+                          style={{ padding:"14px 26px", background:`linear-gradient(135deg,${primary},${primary}cc)`, color:"#050505", fontSize:13, boxShadow:`0 8px 28px ${primary}55` }}>
+                          Conversar sobre o seu caso →
+                        </button>
                       </div>
-                    ))}
+                      <div>
+                        <div className="uppercase" style={{ fontSize:10, letterSpacing:"0.28em", color:"rgba(245,240,232,.45)", marginBottom:18 }}>O que está incluso</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {p.features.map((f, i) => (
+                            <div key={i} className="flex items-center gap-3"
+                              style={{ padding:"12px 14px", background:"rgba(5,5,5,.5)", border:`1px solid ${primary}22`, borderRadius:12, fontSize:13, color:"rgba(245,240,232,.85)", animation:`fadeIn4h 350ms ease ${i*60}ms both` }}>
+                              <div aria-hidden style={{ width:18, height:18, borderRadius:6, background:`linear-gradient(135deg,${primary},${primary}aa)`, color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                                <Check className="w-2.5 h-2.5" strokeWidth={4} />
+                              </div>
+                              {f}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            );
+          })()}
         </div>
       </section>
 
