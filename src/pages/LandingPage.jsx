@@ -3,7 +3,18 @@ import {
   ArrowRight, LayoutDashboard, Check,
   Clock, Calendar, BarChart3, Target, MessageSquare, Sparkles,
   Mail, MapPin, Globe, Menu, X, ChevronUp, MessageCircle,
+  Bot, CheckCircle2,
 } from "lucide-react";
+
+const WHATSAPP_AGENT_URL = "https://wa.me/5511974514678";
+
+const CHAT = [
+  { role: "user", text: "Oi! Quero agendar uma consulta para amanhã." },
+  { role: "bot",  text: "Olá! Tenho horários disponíveis às 10h, 14h e 16h. Qual prefere?" },
+  { role: "user", text: "14h está ótimo!" },
+  { role: "bot",  text: "Perfeito! Consulta confirmada para amanhã às 14h. Enviarei um lembrete. 📅" },
+  { role: "bot",  text: "Posso ajudar com mais alguma coisa?" },
+];
 
 // H isolado (transparente) — nav, hero monograma
 const LOGO_ICON_URL = "/images/logo-icon.png";
@@ -154,6 +165,12 @@ export default function LandingPage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mouse, setMouse] = useState({ x: -9999, y: -9999 });
 
+  // chat mockup
+  const chatRef = useRef(null);
+  const chatInView = useInView(chatRef, 0.3);
+  const [chatStarted, setChatStarted] = useState(false);
+  const [chatStep, setChatStep] = useState(0);
+
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 700);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -165,6 +182,18 @@ export default function LandingPage() {
     window.addEventListener("mousemove", onMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
+
+  // start chat animation only when in view
+  useEffect(() => {
+    if (chatInView && !chatStarted) setChatStarted(true);
+  }, [chatInView, chatStarted]);
+
+  useEffect(() => {
+    if (!chatStarted || chatStep >= CHAT.length) return;
+    const delay = chatStep === 0 ? 600 : 1300;
+    const t = setTimeout(() => setChatStep(s => s + 1), delay);
+    return () => clearTimeout(t);
+  }, [chatStarted, chatStep]);
 
   // lock body scroll when mobile menu is open
   useEffect(() => {
@@ -190,6 +219,10 @@ export default function LandingPage() {
         @keyframes spin4h      { from { transform: rotate(0) } to { transform: rotate(360deg) } }
         @keyframes fadeIn4h    { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
         @keyframes fadeInFast  { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes slideMsg    { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes typingDot   { 0%,80%,100% { opacity:0 } 40% { opacity:1 } }
+        @keyframes floatChat   { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-10px) } }
+        @keyframes floatBadge  { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-8px) } }
         @keyframes marquee4h   { from { transform: translateX(0) } to { transform: translateX(-50%) } }
         @keyframes floatBadge4h { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-9px) } }
         .font-serif4h { font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif; }
@@ -1070,6 +1103,156 @@ export default function LandingPage() {
               );
             })}
           </div>
+
+          {/* ─ Chat demo + CTA ─ */}
+          <Reveal delay={100}>
+            <div
+              ref={chatRef}
+              className="mx-auto"
+              style={{ maxWidth: 520, marginTop: 72, position: "relative" }}
+            >
+              {/* chat window */}
+              <div
+                style={{
+                  borderRadius: 24, overflow: "hidden",
+                  background: "rgba(10,10,10,0.85)",
+                  border: "1px solid rgba(196,154,60,0.22)",
+                  boxShadow: "0 40px 80px -20px rgba(0,0,0,0.8), 0 0 60px rgba(196,154,60,0.08)",
+                  animation: "floatChat 7s ease-in-out infinite",
+                }}
+              >
+                {/* header */}
+                <div
+                  className="flex items-center justify-between"
+                  style={{ padding: "14px 18px", background: "rgba(5,5,5,0.8)", borderBottom: "1px solid rgba(196,154,60,0.1)" }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex items-center justify-center"
+                      style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#96682c,#c49a3c)", boxShadow: "0 4px 12px rgba(196,154,60,0.4)" }}
+                    >
+                      <Bot style={{ width: 18, height: 18, color: "#050505" }} aria-hidden />
+                    </div>
+                    <div>
+                      <div className="font-bold" style={{ fontSize: 13, color: "#f5f0e8" }}>ELO4H</div>
+                      <div className="flex items-center gap-1.5" style={{ fontSize: 11, color: "rgba(245,240,232,0.5)" }}>
+                        <span aria-hidden style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", boxShadow: "0 0 8px #4ade80" }} />
+                        Online agora
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-1.5" aria-hidden>
+                    {["#ff5f57","#ffbd2e","#28c840"].map((c, i) => (
+                      <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: c, opacity: 0.7 }} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* messages */}
+                <div style={{ padding: "18px 14px", minHeight: 280, display: "flex", flexDirection: "column", gap: 10 }}>
+                  {CHAT.slice(0, chatStep).map((msg, i) => (
+                    <div
+                      key={i}
+                      className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+                      style={{ animation: "slideMsg 280ms ease" }}
+                    >
+                      {msg.role === "bot" && (
+                        <div
+                          aria-hidden
+                          style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, background: "linear-gradient(135deg,#96682c,#c49a3c)", display: "flex", alignItems: "center", justifyContent: "center", alignSelf: "flex-end" }}
+                        >
+                          <Bot style={{ width: 14, height: 14, color: "#050505" }} />
+                        </div>
+                      )}
+                      <div style={{
+                        padding: "9px 13px", maxWidth: "78%", fontSize: 13, lineHeight: 1.5, color: "#f5f0e8",
+                        borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                        background: msg.role === "user" ? "linear-gradient(135deg,#96682c,#c49a3c)" : "rgba(28,28,28,0.9)",
+                        border: msg.role === "bot" ? "1px solid rgba(196,154,60,0.12)" : "none",
+                      }}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* typing indicator */}
+                  {chatStarted && chatStep < CHAT.length && chatStep > 0 && CHAT[chatStep].role === "bot" && (
+                    <div className="flex gap-2 items-end" aria-label="Digitando...">
+                      <div
+                        aria-hidden
+                        style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, background: "linear-gradient(135deg,#96682c,#c49a3c)", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        <Bot style={{ width: 14, height: 14, color: "#050505" }} />
+                      </div>
+                      <div style={{ padding: "11px 14px", borderRadius: "18px 18px 18px 4px", background: "rgba(28,28,28,0.9)", border: "1px solid rgba(196,154,60,0.12)", display: "flex", gap: 4, alignItems: "center" }}>
+                        {[0,1,2].map(i => (
+                          <span key={i} aria-hidden style={{ width: 6, height: 6, borderRadius: "50%", background: "#c49a3c", animation: `typingDot 1.4s ease-in-out ${i * 0.22}s infinite` }} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* input bar */}
+                <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(196,154,60,0.08)", display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ flex: 1, padding: "9px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(196,154,60,0.12)", borderRadius: 100, fontSize: 12, color: "rgba(245,240,232,0.3)" }}>
+                    Digite uma mensagem...
+                  </div>
+                  <div aria-hidden style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#96682c,#c49a3c)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <ArrowRight style={{ width: 14, height: 14, color: "#050505" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* badge: consulta confirmada */}
+              <div
+                aria-hidden
+                style={{ position: "absolute", top: -18, left: -28, padding: "10px 14px", borderRadius: 14, background: "rgba(5,5,5,0.92)", border: "1px solid rgba(196,154,60,0.28)", backdropFilter: "blur(12px)", boxShadow: "0 8px 24px rgba(0,0,0,0.5)", animation: "floatBadge 6s ease-in-out infinite" }}
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 style={{ width: 15, height: 15, color: "#4ade80" }} />
+                  <span style={{ fontSize: 12, color: "#f5f0e8", fontWeight: 600 }}>Consulta confirmada</span>
+                </div>
+                <div style={{ fontSize: 10, color: "rgba(245,240,232,0.4)", marginTop: 2 }}>Amanhã às 14h · Dr. Carlos</div>
+              </div>
+
+              {/* badge: leads qualificados */}
+              <div
+                aria-hidden
+                style={{ position: "absolute", bottom: 72, right: -36, padding: "10px 14px", borderRadius: 14, background: "rgba(5,5,5,0.92)", border: "1px solid rgba(196,154,60,0.28)", backdropFilter: "blur(12px)", boxShadow: "0 8px 24px rgba(0,0,0,0.5)", animation: "floatBadge 8s ease-in-out infinite 1.5s" }}
+              >
+                <div style={{ fontSize: 10, color: "rgba(245,240,232,0.4)", marginBottom: 4 }}>Hoje · 23:47</div>
+                <div className="flex items-center gap-2">
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#e8c060", boxShadow: "0 0 8px #e8c060" }} />
+                  <span style={{ fontSize: 12, color: "#f5f0e8", fontWeight: 600 }}>4 leads qualificados</span>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* ─ CTA button ─ */}
+          <Reveal delay={200}>
+            <div className="flex justify-center" style={{ marginTop: 40 }}>
+              <a
+                href={WHATSAPP_AGENT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="lp-btn-primary font-bold rounded-full inline-flex items-center gap-3"
+                style={{
+                  padding: "18px 36px",
+                  background: "linear-gradient(135deg, #96682c, #e8c060)",
+                  color: "#050505",
+                  fontSize: 15,
+                  textDecoration: "none",
+                  boxShadow: "0 12px 40px rgba(196,154,60,0.5), inset 0 1px 0 rgba(255,255,255,0.25)",
+                }}
+              >
+                <MessageCircle className="w-5 h-5" aria-hidden />
+                Teste nosso agente e aproveite para marcar uma reunião conosco
+                <ArrowRight className="w-4 h-4" aria-hidden />
+              </a>
+            </div>
+          </Reveal>
         </div>
       </section>
 
