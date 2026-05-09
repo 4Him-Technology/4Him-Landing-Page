@@ -190,6 +190,59 @@ function agentLabel(agents) {
   return agents.join(" + ");
 }
 
+function generateEKG(seed, width = 2400, baseY = 70) {
+  let s = seed;
+  const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  let x = 0;
+  const pts = [`M${x},${baseY}`];
+  while (x < width) {
+    const flat = 60 + rnd() * 220;
+    x += flat;
+    pts.push(`L${x},${baseY}`);
+    if (x >= width) break;
+    const t = Math.floor(rnd() * 6);
+    if (t === 0) {
+      const a = 30 + rnd() * 35;
+      x += 6;  pts.push(`L${x},${baseY + 8}`);
+      x += 8;  pts.push(`L${x},${baseY - a}`);
+      x += 8;  pts.push(`L${x},${baseY + 14}`);
+      x += 10; pts.push(`L${x},${baseY}`);
+    } else if (t === 1) {
+      const a = 8 + rnd() * 18;
+      x += 14; pts.push(`L${x},${baseY - a}`);
+      x += 18; pts.push(`L${x},${baseY - a}`);
+      x += 14; pts.push(`L${x},${baseY}`);
+    } else if (t === 2) {
+      const a1 = 18 + rnd() * 22;
+      const a2 = 14 + rnd() * 26;
+      x += 6; pts.push(`L${x},${baseY - a1}`);
+      x += 5; pts.push(`L${x},${baseY + 6}`);
+      x += 5; pts.push(`L${x},${baseY - a2}`);
+      x += 8; pts.push(`L${x},${baseY}`);
+    } else if (t === 3) {
+      const a = 28 + rnd() * 32;
+      const dir = rnd() > 0.5 ? 1 : -1;
+      x += 6;  pts.push(`L${x},${baseY + dir * 4}`);
+      x += 5;  pts.push(`L${x},${baseY - dir * a}`);
+      x += 12; pts.push(`L${x},${baseY}`);
+    } else if (t === 4) {
+      const a = 12 + rnd() * 10;
+      x += 8;  pts.push(`L${x},${baseY - a}`);
+      x += 6;  pts.push(`L${x},${baseY + a / 2}`);
+      x += 6;  pts.push(`L${x},${baseY - a / 1.5}`);
+      x += 10; pts.push(`L${x},${baseY}`);
+    } else {
+      const a = 5 + rnd() * 8;
+      x += 12; pts.push(`L${x},${baseY - a}`);
+      x += 10; pts.push(`L${x},${baseY + a / 2}`);
+      x += 14; pts.push(`L${x},${baseY}`);
+    }
+  }
+  return pts.join(" ");
+}
+
+const EKG_PATHS = [generateEKG(7), generateEKG(31), generateEKG(89)];
+
 const BOTTLENECKS = [
   {
     id: "atendimento", icon: MessageSquare, agents: ["ELO4H"],
@@ -1417,10 +1470,10 @@ export default function LandingPage() {
         <div aria-hidden className="absolute inset-0 flex flex-col justify-center pointer-events-none" style={{ overflow:"hidden", gap:24 }}>
           {[0,1,2].map(idx => (
             <div key={idx} style={{ position:"relative", width:"100%", height:140, overflow:"visible", opacity:.5 }}>
-              <svg style={{ position:"absolute", top:"50%", left:0, transform:"translateY(-50%)", animation:`ekgScroll ${14+idx*2}s linear infinite`, animationDelay:`${idx*-3}s`, overflow:"visible" }}
+              <svg style={{ position:"absolute", top:"50%", left:0, transform:"translateY(-50%)", animation:`ekgScroll ${16+idx*3}s linear infinite`, animationDelay:`${idx*-4}s`, overflow:"visible" }}
                 width="200%" height="100%" viewBox="0 0 2400 140" preserveAspectRatio="none">
                 <path
-                  d="M0,70 L300,70 L320,70 L340,50 L360,90 L380,40 L400,70 L420,70 L600,70 L620,70 L640,50 L660,30 L680,110 L700,50 L720,70 L900,70 L920,70 L940,60 L960,80 L980,70 L1200,70 L1220,50 L1240,90 L1260,40 L1280,70 L1500,70 L1520,60 L1540,30 L1560,110 L1580,50 L1600,70 L1800,70 L1820,50 L1840,90 L1860,40 L1880,70 L2100,70 L2120,60 L2140,80 L2160,70 L2400,70"
+                  d={EKG_PATHS[idx]}
                   fill="none" stroke={`url(#ekg-${idx})`} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                 />
                 <defs>
@@ -1460,7 +1513,7 @@ export default function LandingPage() {
                 Converse com a 4Him. Entendemos seu processo, mapeamos oportunidades e desenhamos uma solução sob medida — do atendimento ao BPO financeiro.
               </p>
               <div className="flex flex-col sm:flex-row gap-3.5 justify-center">
-                <button onClick={() => window.open("mailto:contato@4him.com.br","_blank")}
+                <button onClick={() => window.open(WHATSAPP_URL,"_blank")}
                   className="lp-btn-primary font-bold rounded-full"
                   style={{ padding:"18px 36px", background:"linear-gradient(135deg,#e8c060,#ffe9a8)", color:"#050505", fontSize:15, boxShadow:"0 14px 40px rgba(255,233,168,.4), inset 0 1px 0 rgba(255,255,255,.4)" }}>
                   Agendar diagnóstico gratuito →
