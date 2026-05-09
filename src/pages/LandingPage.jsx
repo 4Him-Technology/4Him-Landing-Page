@@ -1433,8 +1433,10 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col gap-2">
                 {[
-                  { name:"ELO4H", desc:"Atendimento · Comercial · Inteligência", color:"#c49a3c" },
-                  { name:"4Hbel", desc:"BPO Financeiro",                         color:"#a78bfa" },
+                  { name:"ELO4H",  desc:"Atendimento · Comercial · Inteligência", color:"#c49a3c" },
+                  { name:"4Hbel",  desc:"BPO Financeiro",                          color:"#a78bfa" },
+                  { name:"Ad4hn",  desc:"Mídias Sociais · Tráfego pago",           color:"#ec4899" },
+                  { name:"Mari4h", desc:"Soluções customizadas com IA",            color:"#34d399" },
                 ].map(p => (
                   <div key={p.name} className="flex items-center gap-2.5"
                     style={{ padding:"7px 12px", borderRadius:10, background:"rgba(255,255,255,.025)", border:"1px solid rgba(255,255,255,.06)" }}>
@@ -1448,12 +1450,13 @@ export default function LandingPage() {
             </div>
 
             {[
-              ["Soluções", ["ELO4H","4Hbel","Agentes customizados","Consultoria estratégica"]],
+              ["Soluções", ["ELO4H","4Hbel","Ad4hn","Mari4h","Consultoria estratégica"]],
               ["Método",   ["Diagnóstico","Desenho","Implantação","Operação contínua"]],
               ["Contato",  [
-                { icon:Mail,   label:"contato@4himtechnology.com", href:"mailto:contato@4himtechnology.com" },
-                { icon:Globe,  label:"www.4himtechnology.com",     href:"https://www.4himtechnology.com"   },
-                { icon:MapPin, label:"Brasil",                      href:null },
+                { icon:MessageCircle, label:"+55 11 97451-4678",          href:WHATSAPP_URL },
+                { icon:Mail,          label:"contato@4himtechnology.com", href:"mailto:contato@4himtechnology.com" },
+                { icon:Globe,         label:"www.4himtechnology.com",     href:"https://www.4himtechnology.com"   },
+                { icon:MapPin,        label:"Brasil",                      href:null },
               ]],
             ].map(([h, items], i) => (
               <div key={i}>
