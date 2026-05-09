@@ -3,11 +3,11 @@ import {
   ArrowRight, LayoutDashboard, Menu, X, ChevronUp, MessageCircle,
   MessageSquare, Target, BarChart3, DollarSign, Zap, TrendingUp,
   Mail, MapPin, Globe, Check, Clock, Sparkles, ChevronRight, Lock, Calendar,
-  CheckCircle2, Headphones, LineChart, Bot,
+  CheckCircle2, Headphones, LineChart, Bot, Megaphone, Lightbulb,
 } from "lucide-react";
 
 const LOGO_ICON_URL = "/images/logo-icon.png";
-const WHATSAPP_URL  = "https://wa.me/5511999999999";
+const WHATSAPP_URL  = "https://wa.me/5511974514678";
 
 /* ─────────────────────────────────────────────────────────────
    Hooks (LP3 originais)
@@ -214,6 +214,22 @@ const BOTTLENECKS = [
     product: "ELO4H + 4Hbel",
     solution: "Ecossistema completo: atendimento, comercial, inteligência e BPO financeiro em agentes integrados que escalam com o negócio.",
     metric: "→ escala sem custo proporcional",
+  },
+  {
+    id: "midias", icon: Megaphone, color: "#ec4899",
+    title: "Mídias sociais sem estratégia",
+    pain: "Tráfego pago sem retorno, publicações irregulares e métricas sem conexão com vendas.",
+    product: "Ad4hn",
+    solution: "Agente de mídias sociais que gerencia tráfego pago, planeja e publica conteúdo, otimiza criativos e conecta cada métrica ao funil comercial.",
+    metric: "↑ ROAS e consistência de marca",
+  },
+  {
+    id: "custom", icon: Lightbulb, color: "#34d399",
+    title: "Tem um problema fora do padrão",
+    pain: "A demanda não se encaixa em produto pronto. Você precisa de uma solução totalmente sob medida.",
+    product: "Lab4H",
+    solution: "Agente de soluções customizadas. Se pode ser feito com IA, fazemos. Da automação inusitada à integração estratégica — o céu é o limite.",
+    metric: "→ qualquer problema, qualquer escala",
   },
 ];
 
@@ -1035,14 +1051,52 @@ export default function LandingPage() {
                 </div>
               </Reveal>
 
-              <Reveal delay={160}>
-                <div style={{ padding:"22px 24px", borderRadius:20, background:"rgba(10,10,10,.4)", border:"1px dashed rgba(196,154,60,.18)", display:"flex", alignItems:"center", gap:14 }}>
-                  <div style={{ width:40, height:40, borderRadius:11, background:"rgba(196,154,60,.06)", border:"1px solid rgba(196,154,60,.15)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <Lock className="w-4 h-4" style={{ color:"rgba(196,154,60,.4)" }} aria-hidden />
+              {/* Ad4hn — mídias sociais */}
+              <Reveal delay={160} className="flex-1">
+                <div style={{ borderRadius:24, padding:"28px 28px 32px", height:"100%", background:"linear-gradient(155deg,rgba(236,72,153,.12),rgba(10,10,10,.75))", border:"1px solid rgba(236,72,153,.3)", boxShadow:"0 24px 48px -16px rgba(0,0,0,.6)" }}>
+                  <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(236,72,153,.12)", border:"1px solid rgba(236,72,153,.35)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#f472b6", marginBottom:16 }}>
+                    <Megaphone className="w-3 h-3" aria-hidden /> Mídias sociais
                   </div>
-                  <div>
-                    <div className="font-semibold" style={{ fontSize:14, color:"rgba(245,240,232,.5)", marginBottom:2 }}>Mais produtos em breve</div>
-                    <div style={{ fontSize:11, color:"rgba(245,240,232,.3)" }}>Novas soluções verticais chegando</div>
+                  <div className="font-black" style={{ fontSize:44, letterSpacing:"-0.04em", lineHeight:0.9, background:"linear-gradient(135deg,#fbcfe8,#ec4899)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:14 }}>
+                    Ad4hn
+                  </div>
+                  <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", marginBottom:20 }}>
+                    Agente de tráfego pago e gestão de conteúdo. Publica, otimiza criativos e conecta cada métrica ao funil comercial.
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {["Tráfego pago otimizado","Calendário editorial automático","Gestão multi-plataforma","Métricas conectadas a vendas"].map((f, i) => (
+                      <div key={i} className="flex items-center gap-2.5" style={{ fontSize:12, color:"rgba(245,240,232,.75)" }}>
+                        <div aria-hidden style={{ width:14, height:14, borderRadius:4, background:"linear-gradient(135deg,#be185d,#ec4899)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <Check className="w-2 h-2" strokeWidth={4} />
+                        </div>
+                        {f}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* Lab4H — soluções customizadas */}
+              <Reveal delay={220} className="flex-1">
+                <div style={{ borderRadius:24, padding:"28px 28px 32px", height:"100%", background:"linear-gradient(155deg,rgba(52,211,153,.12),rgba(10,10,10,.75))", border:"1px solid rgba(52,211,153,.3)", boxShadow:"0 24px 48px -16px rgba(0,0,0,.6)" }}>
+                  <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(52,211,153,.12)", border:"1px solid rgba(52,211,153,.35)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#34d399", marginBottom:16 }}>
+                    <Lightbulb className="w-3 h-3" aria-hidden /> Soluções sob medida
+                  </div>
+                  <div className="font-black" style={{ fontSize:44, letterSpacing:"-0.04em", lineHeight:0.9, background:"linear-gradient(135deg,#a7f3d0,#10b981)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:14 }}>
+                    Lab4H
+                  </div>
+                  <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", marginBottom:20 }}>
+                    Agente de soluções customizadas. Se pode ser feito com IA, fazemos. O céu é o limite — qualquer problema, qualquer escala.
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {["Automações fora do padrão","Integrações sob medida","Casos de uso únicos","Prototipagem rápida com IA"].map((f, i) => (
+                      <div key={i} className="flex items-center gap-2.5" style={{ fontSize:12, color:"rgba(245,240,232,.75)" }}>
+                        <div aria-hidden style={{ width:14, height:14, borderRadius:4, background:"linear-gradient(135deg,#059669,#34d399)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <Check className="w-2 h-2" strokeWidth={4} />
+                        </div>
+                        {f}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </Reveal>
