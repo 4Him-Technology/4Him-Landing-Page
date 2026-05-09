@@ -1412,7 +1412,7 @@ export default function LandingPage() {
                 Converse com a 4Him. Entendemos seu processo, mapeamos oportunidades e desenhamos uma solução sob medida — do atendimento ao BPO financeiro.
               </p>
               <div className="flex flex-col sm:flex-row gap-3.5 justify-center">
-                <button onClick={() => window.open("mailto:contato@4himtechnology.com","_blank")}
+                <button onClick={() => window.open("mailto:contato@4him.com.br","_blank")}
                   className="lp-btn-primary font-bold rounded-full"
                   style={{ padding:"18px 36px", background:"linear-gradient(135deg,#e8c060,#ffe9a8)", color:"#050505", fontSize:15, boxShadow:"0 14px 40px rgba(255,233,168,.4), inset 0 1px 0 rgba(255,255,255,.4)" }}>
                   Agendar diagnóstico gratuito →
@@ -1465,10 +1465,9 @@ export default function LandingPage() {
               ["Soluções", ["ELO4H","4Hbel","Ad4hn","Mari4h","Consultoria estratégica"]],
               ["Método",   ["Diagnóstico","Desenho","Implantação","Operação contínua"]],
               ["Contato",  [
-                { icon:MessageCircle, label:"+55 11 97451-4678",          href:WHATSAPP_URL },
-                { icon:Mail,          label:"contato@4himtechnology.com", href:"mailto:contato@4himtechnology.com" },
-                { icon:Globe,         label:"www.4himtechnology.com",     href:"https://www.4himtechnology.com"   },
-                { icon:MapPin,        label:"Brasil",                      href:null },
+                { icon:MessageCircle, label:"+55 11 97451-4678",   href:WHATSAPP_URL },
+                { icon:Mail,          label:"contato@4him.com.br", href:"mailto:contato@4him.com.br" },
+                { icon:MapPin,        label:"Brasil",               href:null },
               ]],
             ].map(([h, items], i) => (
               <div key={i}>
