@@ -1538,9 +1538,10 @@ export default function LandingPage() {
               ["Soluções", ["ELO4H","4Hbel","Ad4hn","Mari4h","Consultoria estratégica"]],
               ["Método",   ["Diagnóstico","Desenho","Implantação","Operação contínua"]],
               ["Contato",  [
-                { icon:MessageCircle, label:"+55 11 97451-4678",   href:WHATSAPP_URL },
-                { icon:Mail,          label:"contato@4him.com.br", href:"mailto:contato@4him.com.br" },
-                { icon:MapPin,        label:"Brasil",               href:null },
+                { icon:MessageCircle, label:"+55 11 97451-4678",                    href:WHATSAPP_URL },
+                { icon:Mail,          label:"contato@4him.com.br",                  href:"mailto:contato@4him.com.br" },
+                { icon:MapPin,        label:"Atendimento em todo o Brasil",         href:null },
+                { icon:Headphones,    label:"Treinamento presencial sob demanda",   href:null },
               ]],
             ].map(([h, items], i) => (
               <div key={i}>
