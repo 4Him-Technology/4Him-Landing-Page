@@ -56,12 +56,13 @@ function useCounter(target, dur = 1600, active = false) {
   return n;
 }
 
-function useTypewriter(words, speed = 60, delSpeed = 32, pause = 2200) {
+function useTypewriter(words, speed = 60, delSpeed = 32, pause = 2200, active = true) {
   const [text, setText] = useState("");
   const [wi, setWi] = useState(0);
   const [ci, setCi] = useState(0);
   const [del, setDel] = useState(false);
   useEffect(() => {
+    if (!active) return;
     const w = words[wi];
     if (!del && ci === w.length) {
       const t = setTimeout(() => setDel(true), pause);
@@ -75,8 +76,31 @@ function useTypewriter(words, speed = 60, delSpeed = 32, pause = 2200) {
     const nx = del ? ci - 1 : ci + 1;
     const t = setTimeout(() => { setCi(nx); setText(w.slice(0, nx)); }, del ? delSpeed : speed);
     return () => clearTimeout(t);
-  }, [ci, del, wi, words, speed, delSpeed, pause]);
+  }, [ci, del, wi, words, speed, delSpeed, pause, active]);
   return text;
+}
+
+function useTypewriterOnce(text, speed = 70, active = true) {
+  const [out, setOut] = useState("");
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    if (!active || done) return;
+    let i = 0;
+    let cancelled = false;
+    const tick = () => {
+      if (cancelled) return;
+      setOut(text.slice(0, i));
+      if (i < text.length) {
+        i++;
+        setTimeout(tick, speed);
+      } else {
+        setDone(true);
+      }
+    };
+    tick();
+    return () => { cancelled = true; };
+  }, [active, text, speed, done]);
+  return out;
 }
 
 function useTilt(strength = 9) {
@@ -260,6 +284,22 @@ export default function LandingPage() {
   const chatInView = useInView(chatRef, 0.3);
 
   const typed = useTypewriter(TYPEWRITER_WORDS);
+
+  /* italic-gold scroll-triggered typewriters */
+  const tw1Ref = useRef(null); const tw1InView = useInView(tw1Ref, 0.5);
+  const tw2Ref = useRef(null); const tw2InView = useInView(tw2Ref, 0.5);
+  const tw3Ref = useRef(null); const tw3InView = useInView(tw3Ref, 0.5);
+  const tw4Ref = useRef(null); const tw4InView = useInView(tw4Ref, 0.4);
+  const tw5Ref = useRef(null); const tw5InView = useInView(tw5Ref, 0.5);
+
+  const t1 = useTypewriterOnce("gargalo.", 70, tw1InView);
+  const t2 = useTypewriterOnce("gargalo específico.", 60, tw2InView);
+  const t3 = useTypewriterOnce("operação.", 70, tw3InView);
+  const t5 = useTypewriterOnce("Uma", 90, tw5InView);
+  const t4 = useTypewriter(
+    ["seus gargalos.", "sua operação.", "seu atendimento.", "seus processos."],
+    65, 32, 2200, tw4InView
+  );
 
   /* start chat only when it scrolls into view */
   useEffect(() => {
@@ -665,9 +705,9 @@ export default function LandingPage() {
           <div className="text-center" style={{ marginBottom:56 }}>
             <Reveal>
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Qual é o seu maior desafio? ────</div>
-              <h2 className="font-extrabold" style={{ fontSize:"clamp(28px,4vw,52px)", letterSpacing:"-0.03em", lineHeight:1, margin:"0 0 16px" }}>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(28px,4vw,52px)", letterSpacing:"-0.03em", lineHeight:1.15, margin:"0 0 16px" }}>
                 Identifique o seu{" "}
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.1em", display:"inline-block", lineHeight:1.25 }}>gargalo.</span>
+                <span ref={tw1Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline" }}>{t1 || " "}</span>
               </h2>
               <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:520, margin:"0 auto" }}>
                 Selecione o desafio mais crítico da sua operação e veja como a 4Him resolve.
@@ -750,9 +790,9 @@ export default function LandingPage() {
           <div className="text-center" style={{ marginBottom:72 }}>
             <Reveal>
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Ecossistema de produtos ────</div>
-              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.05, margin:"0 0 16px" }}>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.18, margin:"0 0 16px" }}>
                 Cada produto resolve um{" "}
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.1em", display:"inline-block", lineHeight:1.25 }}>gargalo específico.</span>
+                <span ref={tw2Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline" }}>{t2 || " "}</span>
               </h2>
               <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:560, margin:"0 auto" }}>
                 Começamos pelo mais crítico e expandimos. Cada empresa tem seu próprio caminho.
@@ -1017,9 +1057,9 @@ export default function LandingPage() {
           <div className="text-center" style={{ marginBottom:80 }}>
             <Reveal>
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Como funciona ────</div>
-              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,56px)", letterSpacing:"-0.03em", lineHeight:1, margin:0 }}>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,56px)", letterSpacing:"-0.03em", lineHeight:1.15, margin:0 }}>
                 Do diagnóstico à{" "}
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.1em", display:"inline-block", lineHeight:1.25 }}>operação.</span>
+                <span ref={tw3Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline" }}>{t3 || " "}</span>
               </h2>
             </Reveal>
           </div>
@@ -1091,9 +1131,9 @@ export default function LandingPage() {
           <div className="text-center" style={{ marginBottom:56 }}>
             <Reveal>
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── O que nossos agentes fazem ────</div>
-              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.05, margin:"0 0 16px" }}>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.18, margin:"0 0 16px" }}>
                 Três pilares.{" "}
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.1em", display:"inline-block", lineHeight:1.25 }}>Uma</span>{" "}
+                <span ref={tw5Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline" }}>{t5 || " "}</span>{" "}
                 operação inteira.
               </h2>
               <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:620, margin:"0 auto" }}>
@@ -1230,10 +1270,11 @@ export default function LandingPage() {
                 <span aria-hidden style={{ width:6, height:6, borderRadius:"50%", background:"#e8c060", boxShadow:"0 0 12px #e8c060" }} />
                 Sem compromisso · Diagnóstico gratuito
               </div>
-              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,5vw,68px)", letterSpacing:"-0.045em", lineHeight:0.95, margin:"0 0 24px", color:"#f5f0e8" }}>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,5vw,68px)", letterSpacing:"-0.045em", lineHeight:1.15, margin:"0 0 24px", color:"#f5f0e8" }}>
                 Vamos resolver os{" "}<br />
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite" }}>
-                  seus gargalos.
+                <span ref={tw4Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline", minHeight:"1.4em" }}>
+                  {t4 || " "}
+                  <span aria-hidden style={{ display:"inline-block", width:3, height:"0.85em", background:"#e8c060", borderRadius:2, animation:"blink 1s ease-in-out infinite", verticalAlign:"middle", marginLeft:6, WebkitTextFillColor:"#e8c060" }} />
                 </span>
               </h2>
               <p style={{ fontSize:"clamp(15px,1.5vw,19px)", color:"rgba(245,240,232,.65)", maxWidth:560, margin:"0 auto 44px", lineHeight:1.65 }}>
