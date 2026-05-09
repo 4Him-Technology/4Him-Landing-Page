@@ -1512,16 +1512,12 @@ export default function LandingPage() {
               <p style={{ fontSize:"clamp(15px,1.5vw,19px)", color:"rgba(245,240,232,.65)", maxWidth:560, margin:"0 auto 44px", lineHeight:1.65 }}>
                 Converse com a 4Him. Entendemos seu processo, mapeamos oportunidades e desenhamos uma solução sob medida — do atendimento ao BPO financeiro.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3.5 justify-center">
+              <div className="flex justify-center">
                 <button onClick={() => window.open(WHATSAPP_URL,"_blank")}
-                  className="lp-btn-primary font-bold rounded-full"
+                  className="lp-btn-primary font-bold rounded-full inline-flex items-center justify-center gap-2.5"
                   style={{ padding:"18px 36px", background:"linear-gradient(135deg,#e8c060,#ffe9a8)", color:"#050505", fontSize:15, boxShadow:"0 14px 40px rgba(255,233,168,.4), inset 0 1px 0 rgba(255,255,255,.4)" }}>
-                  Agendar diagnóstico gratuito →
-                </button>
-                <button onClick={() => window.open(WHATSAPP_URL,"_blank")}
-                  className="lp-btn-ghost font-semibold rounded-full flex items-center justify-center gap-2"
-                  style={{ padding:"18px 36px", background:"transparent", color:"#f5f0e8", border:"1px solid rgba(245,240,232,.2)", fontSize:15 }}>
-                  <MessageCircle className="w-4 h-4" aria-hidden /> Falar no WhatsApp
+                  <MessageCircle className="w-4 h-4" aria-hidden />
+                  Agendar diagnóstico gratuito no WhatsApp →
                 </button>
               </div>
             </div>
