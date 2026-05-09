@@ -167,8 +167,9 @@ const TYPEWRITER_WORDS = [
 ];
 
 const BOTTLENECKS = [
+  // ELO4H — gold
   {
-    id: "atendimento", icon: MessageSquare, color: "#c49a3c",
+    id: "atendimento", icon: MessageSquare, color: "#c49a3c", agent: "ELO4H",
     title: "Atendimento sobrecarregado",
     pain: "Equipe não dá conta do volume. Respostas lentas, clientes perdidos.",
     product: "ELO4H — Atendimento",
@@ -176,7 +177,7 @@ const BOTTLENECKS = [
     metric: "3× mais capacidade sem contratar",
   },
   {
-    id: "leads", icon: Target, color: "#e8c060",
+    id: "leads", icon: Target, color: "#c49a3c", agent: "ELO4H",
     title: "Leads sem qualificação",
     pain: "Muitos contatos chegando, poucos convertendo. Triagem manual ineficiente.",
     product: "ELO4H — Comercial",
@@ -184,15 +185,16 @@ const BOTTLENECKS = [
     metric: "↑ taxa de conversão automatizada",
   },
   {
-    id: "dados", icon: BarChart3, color: "#ffe9a8",
+    id: "dados", icon: BarChart3, color: "#c49a3c", agent: "ELO4H",
     title: "Decisões sem dados reais",
     pain: "Gestão no escuro. Sem métricas em tempo real por canal ou unidade.",
     product: "ELO4H — Inteligência",
     solution: "Dashboard em tempo real com métricas por canal, unidade e campanha. Recomendações estratégicas do agente antes da decisão.",
     metric: "→ dados antes de toda decisão",
   },
+  // 4Hbel — purple
   {
-    id: "financeiro", icon: DollarSign, color: "#a78bfa",
+    id: "financeiro", icon: DollarSign, color: "#a78bfa", agent: "4Hbel",
     title: "Financeiro manual e lento",
     pain: "Conciliações demoradas, sem previsibilidade. BPO caro e ineficiente.",
     product: "4Hbel — BPO Financeiro",
@@ -200,36 +202,46 @@ const BOTTLENECKS = [
     metric: "↓ custo operacional financeiro",
   },
   {
-    id: "processos", icon: Zap, color: "#34d399",
-    title: "Processos 100% manuais",
-    pain: "Tarefas repetitivas que consomem o time e geram erros sistemáticos.",
-    product: "Consultoria 4Him",
-    solution: "Diagnóstico completo dos processos. Identificamos os maiores gargalos e desenhamos automações sob medida para cada operação.",
-    metric: "→ redesenho com IA personalizada",
+    id: "conciliacao", icon: LineChart, color: "#a78bfa", agent: "4Hbel",
+    title: "Conciliação bancária imprecisa",
+    pain: "Lançamentos manuais geram erros. Auditoria custosa e fora do tempo certo.",
+    product: "4Hbel — Conciliação",
+    solution: "Conciliação automatizada com integração bancária. Auditoria contínua, classificações inteligentes e relatórios prontos para gestão.",
+    metric: "→ fechamento sem retrabalho",
   },
+  // Ad4hn — pink
   {
-    id: "escala", icon: TrendingUp, color: "#f472b6",
-    title: "Crescer sem ampliar equipe",
-    pain: "Quer escalar mas não pode contratar. Capacidade limitada segurando o crescimento.",
-    product: "ELO4H + 4Hbel",
-    solution: "Ecossistema completo: atendimento, comercial, inteligência e BPO financeiro em agentes integrados que escalam com o negócio.",
-    metric: "→ escala sem custo proporcional",
-  },
-  {
-    id: "midias", icon: Megaphone, color: "#ec4899",
+    id: "midias", icon: Megaphone, color: "#ec4899", agent: "Ad4hn",
     title: "Mídias sociais sem estratégia",
-    pain: "Tráfego pago sem retorno, publicações irregulares e métricas sem conexão com vendas.",
-    product: "Ad4hn",
-    solution: "Agente de mídias sociais que gerencia tráfego pago, planeja e publica conteúdo, otimiza criativos e conecta cada métrica ao funil comercial.",
-    metric: "↑ ROAS e consistência de marca",
+    pain: "Publicações irregulares e métricas sem conexão com vendas. A marca fica perdida.",
+    product: "Ad4hn — Mídias Sociais",
+    solution: "Agente que planeja, publica e gerencia conteúdo multi-plataforma com tom de voz consistente — cada post conectado ao objetivo de negócio.",
+    metric: "→ marca consistente em todos os canais",
   },
   {
-    id: "custom", icon: Lightbulb, color: "#34d399",
+    id: "trafego", icon: TrendingUp, color: "#ec4899", agent: "Ad4hn",
+    title: "Tráfego pago sem ROI",
+    pain: "Verba queimada com criativos genéricos e públicos mal segmentados.",
+    product: "Ad4hn — Performance",
+    solution: "Otimização contínua de criativos e segmentação automática. Cada anúncio é testado e ajustado para maximizar o retorno.",
+    metric: "↑ retorno por real investido",
+  },
+  // Mari4h — green
+  {
+    id: "custom", icon: Lightbulb, color: "#34d399", agent: "Mari4h",
     title: "Tem um problema fora do padrão",
     pain: "A demanda não se encaixa em produto pronto. Você precisa de uma solução totalmente sob medida.",
-    product: "Mari4h",
+    product: "Mari4h — Soluções sob medida",
     solution: "Agente de soluções customizadas. Se pode ser feito com IA, fazemos. Da automação inusitada à integração estratégica — o céu é o limite.",
     metric: "→ qualquer problema, qualquer escala",
+  },
+  {
+    id: "integracao", icon: Zap, color: "#34d399", agent: "Mari4h",
+    title: "Sistemas que não conversam",
+    pain: "Dados espalhados, retrabalho entre ferramentas e operações duplicadas no dia a dia.",
+    product: "Mari4h — Integrações",
+    solution: "Integrações sob medida entre seus sistemas. Pipelines de dados, sincronização em tempo real e automações end-to-end.",
+    metric: "→ um único fluxo, zero retrabalho",
   },
 ];
 
@@ -833,7 +845,7 @@ export default function LandingPage() {
                   </div>
                   <div className="flex items-center">
                     <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full whitespace-nowrap"
-                      style={{ padding:"16px 28px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:14, boxShadow:"0 8px 28px rgba(196,154,60,.45)" }}>
+                      style={{ padding:"16px 28px", background:`linear-gradient(135deg,${activeBG.color},${activeBG.color}cc)`, color:"#050505", fontSize:14, boxShadow:`0 8px 28px ${activeBG.color}66` }}>
                       Quero essa solução →
                     </button>
                   </div>
