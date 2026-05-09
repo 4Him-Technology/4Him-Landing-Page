@@ -336,6 +336,9 @@ export default function LandingPage() {
         @keyframes pulseRing  { 0%{ transform:scale(1);opacity:1 } 100%{ transform:scale(1.5);opacity:0 } }
         @keyframes ekgScroll  { from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
         @keyframes floatH     { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-12px) } }
+        @keyframes floatH4h   { 0%,100%{ transform:translateY(0) rotate(-2deg) } 50%{ transform:translateY(-18px) rotate(2deg) } }
+        @keyframes floatBadge4h { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-9px) } }
+        @keyframes spin4h     { from{ transform:rotate(0) } to{ transform:rotate(360deg) } }
         @keyframes slideMsg   { from{ opacity:0;transform:translateY(8px) } to{ opacity:1;transform:translateY(0) } }
         @keyframes typingDot  { 0%,80%,100%{ opacity:0 } 40%{ opacity:1 } }
         @keyframes floatA     { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-8px) } }
@@ -473,14 +476,16 @@ export default function LandingPage() {
         </Reveal>
 
         <Reveal delay={200}>
-          <div style={{ fontSize:"clamp(32px,5.5vw,88px)", fontWeight:900, letterSpacing:"-0.045em", lineHeight:1.05, margin:"0 0 40px", minHeight:"clamp(44px,7vw,100px)", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+          <div style={{ fontSize:"clamp(32px,5.5vw,88px)", fontWeight:900, letterSpacing:"-0.045em", lineHeight:1.4, margin:"0 0 40px", minHeight:"clamp(60px,9vw,130px)", display:"flex", alignItems:"center", justifyContent:"center", gap:8, paddingBottom:"0.25em", overflow:"visible" }}>
             <span style={{
               fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif',
               fontStyle:"italic", fontWeight:400,
+              lineHeight:1.4, paddingBottom:"0.15em",
               background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)",
               backgroundSize:"200% 100%",
               WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text",
               animation:"shimmer4h 6s linear infinite",
+              display:"inline-block",
             }}>
               {typed}
             </span>
@@ -532,53 +537,92 @@ export default function LandingPage() {
       <section ref={statsRef} className="relative z-10" style={{ padding:"40px 24px 80px" }}>
         <div className="mx-auto" style={{ maxWidth:1100 }}>
 
-          {/* H + orbital pills */}
-          <div className="relative flex items-center justify-center" style={{ height:"clamp(360px,50vw,500px)", marginBottom:48 }}>
-            {/* glow */}
-            <div aria-hidden style={{ position:"absolute", width:380, height:380, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.4),transparent 60%)", filter:"blur(50px)" }} />
-            {/* rings */}
-            <div aria-hidden style={{ position:"absolute", width:360, height:360, borderRadius:"50%", border:"1px solid rgba(196,154,60,.15)" }} />
-            <div aria-hidden style={{ position:"absolute", width:440, height:440, borderRadius:"50%", border:"1px dashed rgba(196,154,60,.1)" }} />
-
-            {/* H logo */}
-            <div className="relative z-10" style={{ animation:"floatH 6s ease-in-out infinite" }}>
-              <img src={LOGO_ICON_URL} alt="" style={{ height:"clamp(180px,24vw,260px)", width:"auto", filter:"drop-shadow(0 0 40px rgba(196,154,60,.35))" }} />
-            </div>
-
-            {/* left orbit */}
-            <div className="hidden md:flex absolute flex-col gap-5" style={{ left:0, top:"50%", transform:"translateY(-50%)" }}>
-              {ORBIT_LEFT.map((label, i) => (
-                <Reveal key={label} delay={i*120} from="left">
-                  <div className="flex items-center gap-2"
-                    style={{ padding:"9px 16px", borderRadius:100, background:"rgba(10,10,10,.85)", border:"1px solid rgba(196,154,60,.2)", backdropFilter:"blur(12px)", fontSize:13, color:"#f5f0e8", boxShadow:"0 8px 24px rgba(0,0,0,.4)", transform:`translateX(${i===1 ? "30px" : "0"})` }}>
-                    <span aria-hidden style={{ width:5, height:5, borderRadius:"50%", background:"#c49a3c", boxShadow:"0 0 8px #c49a3c" }} />
-                    {label}
-                  </div>
-                </Reveal>
+          {/* H + orbital pills (estrutura idêntica à LP1) */}
+          <div className="mx-auto flex items-center justify-center" style={{ gap:"clamp(16px, 4vw, 56px)", marginBottom:48 }}>
+            {/* Left badges */}
+            <div className="hidden md:flex flex-col gap-7 items-end">
+              {ORBIT_LEFT.map((text, i) => (
+                <div
+                  key={text}
+                  aria-hidden
+                  className="flex items-center gap-2 font-semibold rounded-full whitespace-nowrap"
+                  style={{
+                    background: "rgba(10,10,10,0.85)",
+                    border: "1px solid rgba(196,154,60,0.3)",
+                    padding: "9px 16px",
+                    fontSize: 12,
+                    color: "#f5f0e8",
+                    backdropFilter: "blur(8px)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                    animation: `floatBadge4h ${4 + i * 0.5}s ease-in-out infinite ${i * 0.6}s`,
+                  }}
+                >
+                  <span style={{ color: "#c49a3c", fontSize: 8 }} aria-hidden>●</span>
+                  {text}
+                </div>
               ))}
             </div>
 
-            {/* right orbit */}
-            <div className="hidden md:flex absolute flex-col gap-5 items-end" style={{ right:0, top:"50%", transform:"translateY(-50%)" }}>
-              {ORBIT_RIGHT.map((label, i) => (
-                <Reveal key={label} delay={i*120} from="right">
-                  <div className="flex items-center gap-2"
-                    style={{ padding:"9px 16px", borderRadius:100, background:"rgba(10,10,10,.85)", border:"1px solid rgba(196,154,60,.2)", backdropFilter:"blur(12px)", fontSize:13, color:"#f5f0e8", boxShadow:"0 8px 24px rgba(0,0,0,.4)", transform:`translateX(${i===1 ? "-30px" : "0"})` }}>
-                    <span aria-hidden style={{ width:5, height:5, borderRadius:"50%", background:"#c49a3c", boxShadow:"0 0 8px #c49a3c" }} />
-                    {label}
-                  </div>
-                </Reveal>
-              ))}
+            {/* Logo + rings */}
+            <div className="relative flex-shrink-0" style={{ padding: 40 }}>
+              <div
+                aria-hidden
+                className="absolute inset-0 rounded-full"
+                style={{ border: "1px solid rgba(196,154,60,0.2)", animation: "spin4h 30s linear infinite" }}
+              />
+              <div
+                aria-hidden
+                className="absolute rounded-full"
+                style={{
+                  inset: 20,
+                  border: "1px dashed rgba(196,154,60,0.15)",
+                  animation: "spin4h 20s linear infinite reverse",
+                }}
+              />
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: 280, height: 280,
+                  animation: "floatH4h 6s ease-in-out infinite",
+                  filter: "drop-shadow(0 40px 80px rgba(0,0,0,0.9)) drop-shadow(0 0 60px rgba(196,154,60,0.35))",
+                }}
+              >
+                <img src={LOGO_ICON_URL} alt="" className="w-full h-full object-contain" />
+              </div>
             </div>
 
-            {/* mobile pills */}
-            <div className="md:hidden absolute flex flex-wrap justify-center gap-2 px-4" style={{ bottom:0 }}>
-              {[...ORBIT_LEFT, ...ORBIT_RIGHT].map(label => (
-                <span key={label} style={{ padding:"6px 12px", borderRadius:100, background:"rgba(10,10,10,.85)", border:"1px solid rgba(196,154,60,.2)", fontSize:11, color:"#f5f0e8" }}>
-                  {label}
-                </span>
+            {/* Right badges */}
+            <div className="hidden md:flex flex-col gap-7 items-start">
+              {ORBIT_RIGHT.map((text, i) => (
+                <div
+                  key={text}
+                  aria-hidden
+                  className="flex items-center gap-2 font-semibold rounded-full whitespace-nowrap"
+                  style={{
+                    background: "rgba(10,10,10,0.85)",
+                    border: "1px solid rgba(196,154,60,0.3)",
+                    padding: "9px 16px",
+                    fontSize: 12,
+                    color: "#f5f0e8",
+                    backdropFilter: "blur(8px)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                    animation: `floatBadge4h ${4.5 + i * 0.5}s ease-in-out infinite ${1 + i * 0.6}s`,
+                  }}
+                >
+                  <span style={{ color: "#c49a3c", fontSize: 8 }} aria-hidden>●</span>
+                  {text}
+                </div>
               ))}
             </div>
+          </div>
+
+          {/* mobile pills */}
+          <div className="md:hidden flex flex-wrap justify-center gap-2 px-4" style={{ marginBottom:48 }}>
+            {[...ORBIT_LEFT, ...ORBIT_RIGHT].map(label => (
+              <span key={label} style={{ padding:"6px 12px", borderRadius:100, background:"rgba(10,10,10,.85)", border:"1px solid rgba(196,154,60,.2)", fontSize:11, color:"#f5f0e8" }}>
+                {label}
+              </span>
+            ))}
           </div>
 
           {/* Stats card */}
@@ -623,7 +667,7 @@ export default function LandingPage() {
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Qual é o seu maior desafio? ────</div>
               <h2 className="font-extrabold" style={{ fontSize:"clamp(28px,4vw,52px)", letterSpacing:"-0.03em", lineHeight:1, margin:"0 0 16px" }}>
                 Identifique o seu{" "}
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, color:"#c49a3c" }}>gargalo.</span>
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.1em", display:"inline-block", lineHeight:1.25 }}>gargalo.</span>
               </h2>
               <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:520, margin:"0 auto" }}>
                 Selecione o desafio mais crítico da sua operação e veja como a 4Him resolve.
@@ -708,7 +752,7 @@ export default function LandingPage() {
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Ecossistema de produtos ────</div>
               <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.05, margin:"0 0 16px" }}>
                 Cada produto resolve um{" "}
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, color:"#c49a3c" }}>gargalo específico.</span>
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.1em", display:"inline-block", lineHeight:1.25 }}>gargalo específico.</span>
               </h2>
               <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:560, margin:"0 auto" }}>
                 Começamos pelo mais crítico e expandimos. Cada empresa tem seu próprio caminho.
@@ -975,7 +1019,7 @@ export default function LandingPage() {
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Como funciona ────</div>
               <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,56px)", letterSpacing:"-0.03em", lineHeight:1, margin:0 }}>
                 Do diagnóstico à{" "}
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, color:"#c49a3c" }}>operação.</span>
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.1em", display:"inline-block", lineHeight:1.25 }}>operação.</span>
               </h2>
             </Reveal>
           </div>
@@ -1049,7 +1093,7 @@ export default function LandingPage() {
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── O que nossos agentes fazem ────</div>
               <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.05, margin:"0 0 16px" }}>
                 Três pilares.{" "}
-                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, color:"#c49a3c" }}>Uma</span>{" "}
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.1em", display:"inline-block", lineHeight:1.25 }}>Uma</span>{" "}
                 operação inteira.
               </h2>
               <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:620, margin:"0 auto" }}>
@@ -1151,13 +1195,13 @@ export default function LandingPage() {
       {/* ════════ 7. CTA + EKG ANIMATION ════════ */}
       <section id="contato" className="relative z-10" style={{ padding:"60px 24px 80px" }}>
         {/* EKG cardiac lines */}
-        <div aria-hidden className="absolute inset-0 flex flex-col justify-center pointer-events-none" style={{ overflow:"hidden" }}>
+        <div aria-hidden className="absolute inset-0 flex flex-col justify-center pointer-events-none" style={{ overflow:"hidden", gap:24 }}>
           {[0,1,2].map(idx => (
-            <div key={idx} style={{ position:"relative", width:"100%", height:120, overflow:"hidden", opacity:.5, marginTop: idx===0 ? -40 : 0, marginBottom: idx===2 ? -40 : 0 }}>
-              <svg style={{ position:"absolute", top:"50%", left:0, transform:"translateY(-50%)", animation:`ekgScroll ${14+idx*2}s linear infinite`, animationDelay:`${idx*-3}s` }}
-                width="200%" height="100%" viewBox="0 0 2400 100" preserveAspectRatio="none">
+            <div key={idx} style={{ position:"relative", width:"100%", height:140, overflow:"visible", opacity:.5 }}>
+              <svg style={{ position:"absolute", top:"50%", left:0, transform:"translateY(-50%)", animation:`ekgScroll ${14+idx*2}s linear infinite`, animationDelay:`${idx*-3}s`, overflow:"visible" }}
+                width="200%" height="100%" viewBox="0 0 2400 140" preserveAspectRatio="none">
                 <path
-                  d="M0,50 L300,50 L320,50 L340,30 L360,70 L380,20 L400,50 L420,50 L600,50 L620,50 L640,30 L660,10 L680,90 L700,30 L720,50 L900,50 L920,50 L940,40 L960,60 L980,50 L1200,50 L1220,30 L1240,70 L1260,20 L1280,50 L1500,50 L1520,40 L1540,10 L1560,90 L1580,30 L1600,50 L1800,50 L1820,30 L1840,70 L1860,20 L1880,50 L2100,50 L2120,40 L2140,60 L2160,50 L2400,50"
+                  d="M0,70 L300,70 L320,70 L340,50 L360,90 L380,40 L400,70 L420,70 L600,70 L620,70 L640,50 L660,30 L680,110 L700,50 L720,70 L900,70 L920,70 L940,60 L960,80 L980,70 L1200,70 L1220,50 L1240,90 L1260,40 L1280,70 L1500,70 L1520,60 L1540,30 L1560,110 L1580,50 L1600,70 L1800,70 L1820,50 L1840,90 L1860,40 L1880,70 L2100,70 L2120,60 L2140,80 L2160,70 L2400,70"
                   fill="none" stroke={`url(#ekg-${idx})`} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                 />
                 <defs>
