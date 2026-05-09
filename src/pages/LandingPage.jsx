@@ -1,105 +1,102 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
-  ArrowRight, Check, Clock, MessageSquare, BarChart3, Target,
-  Mail, MapPin, Globe, Menu, X, ChevronUp, MessageCircle,
-  Bot, Zap, TrendingUp, Lock,
-  Brain, Headphones, LineChart, LayoutDashboard, Calendar,
-  Sparkles, DollarSign, Volume2, Repeat, Database,
-  History, UserCheck,
+  ArrowRight, LayoutDashboard, Menu, X, ChevronUp, MessageCircle,
+  MessageSquare, Target, BarChart3, DollarSign, Zap, TrendingUp,
+  Mail, MapPin, Globe, Check, Clock, Sparkles, ChevronRight, Lock, Calendar,
+  CheckCircle2, Headphones, LineChart,
 } from "lucide-react";
 
-/* ─── Assets ─── */
 const LOGO_ICON_URL = "/images/logo-icon.png";
-const WHATSAPP_URL = "https://wa.me/5511999999999";
+const WHATSAPP_URL  = "https://wa.me/5511999999999";
 
-/* ═══════════════════════════════════════════════════════════════
-   HOOKS
-   ═══════════════════════════════════════════════════════════════ */
-
+/* ─────────────────────────────────────────────────────────────
+   Hooks (LP3 originais)
+───────────────────────────────────────────────────────────── */
 function useScrollProgress() {
-  const [progress, setProgress] = useState(0);
+  const [pct, setPct] = useState(0);
   useEffect(() => {
-    const onScroll = () => {
-      const el = document.documentElement;
-      const scrolled = el.scrollTop || document.body.scrollTop;
-      const total = el.scrollHeight - el.clientHeight;
-      setProgress(total > 0 ? (scrolled / total) * 100 : 0);
+    const fn = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setPct(total > 0 ? (window.scrollY / total) * 100 : 0);
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
-  return progress;
+  return pct;
 }
 
-function useInView(ref, threshold = 0.15, once = true) {
-  const [inView, setInView] = useState(false);
+function useInView(ref, threshold = 0.15) {
+  const [v, setV] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setInView(true);
-          if (once) io.unobserve(el);
-        } else if (!once) {
-          setInView(false);
-        }
-      },
+      ([e]) => e.isIntersecting && setV(true),
       { threshold }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [ref, threshold, once]);
-  return inView;
+  }, [ref, threshold]);
+  return v;
 }
 
-function useCounter(target, duration = 1800, start = false) {
-  const [count, setCount] = useState(0);
+function useCounter(target, dur = 1600, active = false) {
+  const [n, setN] = useState(0);
   useEffect(() => {
-    if (!start) return;
-    let startTime = null;
-    const step = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(ease * target));
-      if (progress < 1) requestAnimationFrame(step);
+    if (!active || target === 0) { setN(target); return; }
+    let t0 = null;
+    const tick = (ts) => {
+      if (!t0) t0 = ts;
+      const p = Math.min((ts - t0) / dur, 1);
+      setN(Math.floor((1 - Math.pow(1 - p, 3)) * target));
+      if (p < 1) requestAnimationFrame(tick);
     };
-    requestAnimationFrame(step);
-  }, [target, duration, start]);
-  return count;
+    requestAnimationFrame(tick);
+  }, [target, dur, active]);
+  return n;
 }
 
-function useTypewriter(words, speed = 80, pause = 2200) {
-  const [display, setDisplay] = useState("");
-  const [wordIdx, setWordIdx] = useState(0);
-  const [charIdx, setCharIdx] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-
+function useTypewriter(words, speed = 60, delSpeed = 32, pause = 2200) {
+  const [text, setText] = useState("");
+  const [wi, setWi] = useState(0);
+  const [ci, setCi] = useState(0);
+  const [del, setDel] = useState(false);
   useEffect(() => {
-    const current = words[wordIdx];
-    const delay = deleting ? speed / 2 : charIdx === current.length ? pause : speed;
+    const w = words[wi];
+    if (!del && ci === w.length) {
+      const t = setTimeout(() => setDel(true), pause);
+      return () => clearTimeout(t);
+    }
+    if (del && ci === 0) {
+      setDel(false);
+      setWi(i => (i + 1) % words.length);
+      return;
+    }
+    const nx = del ? ci - 1 : ci + 1;
+    const t = setTimeout(() => { setCi(nx); setText(w.slice(0, nx)); }, del ? delSpeed : speed);
+    return () => clearTimeout(t);
+  }, [ci, del, wi, words, speed, delSpeed, pause]);
+  return text;
+}
 
-    const timer = setTimeout(() => {
-      if (!deleting && charIdx < current.length) {
-        setDisplay(current.slice(0, charIdx + 1));
-        setCharIdx((c) => c + 1);
-      } else if (!deleting && charIdx === current.length) {
-        setDeleting(true);
-      } else if (deleting && charIdx > 0) {
-        setDisplay(current.slice(0, charIdx - 1));
-        setCharIdx((c) => c - 1);
-      } else {
-        setDeleting(false);
-        setWordIdx((w) => (w + 1) % words.length);
-      }
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [charIdx, deleting, wordIdx, words, speed, pause]);
-
-  return display;
+function useTilt(strength = 9) {
+  const ref = useRef(null);
+  const onMouseMove = useCallback((e) => {
+    const el = ref.current;
+    if (!el) return;
+    const { left, top, width, height } = el.getBoundingClientRect();
+    const x = (e.clientX - left) / width - 0.5;
+    const y = (e.clientY - top) / height - 0.5;
+    el.style.transform = `perspective(900px) rotateY(${x * strength * 2}deg) rotateX(${-y * strength * 2}deg) translateZ(12px)`;
+    el.style.transition = "transform 80ms linear";
+  }, [strength]);
+  const onMouseLeave = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.transition = "transform 450ms cubic-bezier(.34,1.56,.64,1)";
+    el.style.transform = "";
+  }, []);
+  return { ref, onMouseMove, onMouseLeave };
 }
 
 function Reveal({ children, delay = 0, className = "", from = "bottom" }) {
@@ -107,18 +104,18 @@ function Reveal({ children, delay = 0, className = "", from = "bottom" }) {
   const inView = useInView(ref);
   const init = {
     bottom: "translateY(28px)",
-    left: "translateX(-28px)",
-    right: "translateX(28px)",
-    scale: "scale(0.95)",
+    left: "translateX(-32px)",
+    right: "translateX(32px)",
+    none: "none",
   };
   return (
     <div
       ref={ref}
-      className={className}
+      className={`transition-all duration-700 ease-out ${className}`}
       style={{
         opacity: inView ? 1 : 0,
-        transform: inView ? "translate(0,0) scale(1)" : (init[from] || init.bottom),
-        transition: `opacity 0.8s ease-out ${delay}ms, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+        transform: inView ? "translate(0,0)" : (init[from] || init.bottom),
+        transitionDelay: `${delay}ms`,
       }}
     >
       {children}
@@ -126,1388 +123,988 @@ function Reveal({ children, delay = 0, className = "", from = "bottom" }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   CONTENT DATA
-   ═══════════════════════════════════════════════════════════════ */
-
+/* ─────────────────────────────────────────────────────────────
+   Content (mesclado LP3 + LP2)
+───────────────────────────────────────────────────────────── */
 const NAV_LINKS = [
-  { label: "Seu desafio", href: "#desafio" },
-  { label: "Produtos", href: "#produtos" },
-  { label: "Método", href: "#metodo" },
-  { label: "Contato", href: "#contato" },
+  ["desafio",  "Seu desafio"],
+  ["produtos", "Produtos"],
+  ["pilares",  "Pilares"],
+  ["metodo",   "Método"],
+  ["contato",  "Contato"],
 ];
 
 const TYPEWRITER_WORDS = [
+  "resolve gargalos operacionais.",
   "automatiza seu atendimento.",
-  "qualifica seus leads.",
-  "opera seu BPO financeiro.",
-  "escala sua operação.",
-];
-
-const HERO_FEATURES = [
-  { icon: <Clock size={14} />, label: "Atendimento 24h" },
-  { icon: <Target size={14} />, label: "Qualificação de leads" },
-  { icon: <BarChart3 size={14} />, label: "Dashboard ao vivo" },
-  { icon: <Calendar size={14} />, label: "Agenda integrada" },
-  { icon: <Sparkles size={14} />, label: "IA personalizada" },
-  { icon: <DollarSign size={14} />, label: "BPO Financeiro" },
-];
-
-const ORBIT_FEATURES_LEFT = [
-  { label: "Atendimento 24h" },
-  { label: "Follow-up automático" },
-  { label: "Dashboard ao vivo" },
-];
-
-const ORBIT_FEATURES_RIGHT = [
-  { label: "Multicanal" },
-  { label: "Agenda integrada" },
-  { label: "Qualificação de leads" },
-];
-
-const STATS = [
-  { value: 24, suffix: "h", label: "Disponibilidade do agente" },
-  { value: 6, suffix: "+", label: "Canais integrados" },
-  { value: 100, suffix: "%", label: "Personalizado por empresa" },
-  { value: 0, suffix: "", label: "Templates genéricos" },
-];
-
-const INDUSTRIES = [
-  "Varejo", "Indústria", "Imobiliário", "Franquias", "Serviços",
-  "Saúde", "Educação", "Jurídico", "Financeiro", "Logística",
+  "transforma dados em decisão.",
+  "escala sem ampliar equipe.",
+  "gera inteligência estratégica.",
 ];
 
 const BOTTLENECKS = [
   {
-    icon: <MessageSquare size={20} />,
+    id: "atendimento", icon: MessageSquare, color: "#c49a3c",
     title: "Atendimento sobrecarregado",
-    desc: "Equipe não dá conta do volume. Respostas lentas, clientes perdidos.",
-    solution: "Nosso agente responde em segundos, 24h por dia. Sua equipe foca no que importa.",
+    pain: "Equipe não dá conta do volume. Respostas lentas, clientes perdidos.",
+    product: "ELO4H — Atendimento",
+    solution: "Um agente treinado no seu negócio responde em todos os canais 24h, com o tom de voz da sua empresa. Handoff para humano quando necessário.",
+    metric: "3× mais capacidade sem contratar",
   },
   {
-    icon: <Target size={20} />,
+    id: "leads", icon: Target, color: "#e8c060",
     title: "Leads sem qualificação",
-    desc: "Muitos contatos chegando, poucos convertendo. Triagem manual ineficiente.",
-    solution: "Qualificamos e nutrimos leads automaticamente, com handoff inteligente para vendas.",
+    pain: "Muitos contatos chegando, poucos convertendo. Triagem manual ineficiente.",
+    product: "ELO4H — Comercial",
+    solution: "Qualificação automática + follow-up no tempo ideal. Só chega ao time comercial quem está pronto para fechar.",
+    metric: "↑ taxa de conversão automatizada",
   },
   {
-    icon: <BarChart3 size={20} />,
+    id: "dados", icon: BarChart3, color: "#ffe9a8",
     title: "Decisões sem dados reais",
-    desc: "Gestão no escuro. Sem métricas em tempo real por canal ou unidade.",
-    solution: "Dashboard ao vivo com insights de cada conversa, conversão e gargalo da operação.",
+    pain: "Gestão no escuro. Sem métricas em tempo real por canal ou unidade.",
+    product: "ELO4H — Inteligência",
+    solution: "Dashboard em tempo real com métricas por canal, unidade e campanha. Recomendações estratégicas do agente antes da decisão.",
+    metric: "→ dados antes de toda decisão",
   },
   {
-    icon: <DollarSign size={20} />,
+    id: "financeiro", icon: DollarSign, color: "#a78bfa",
     title: "Financeiro manual e lento",
-    desc: "Conciliações demoradas, sem previsibilidade. BPO caro e ineficiente.",
-    solution: "4Hbel automatiza conciliações, fluxo de caixa e relatórios — com previsibilidade real.",
+    pain: "Conciliações demoradas, sem previsibilidade. BPO caro e ineficiente.",
+    product: "4Hbel — BPO Financeiro",
+    solution: "IA aplicada ao BPO financeiro. Automação de conciliações, relatórios automatizados e previsibilidade de fluxo de caixa.",
+    metric: "↓ custo operacional financeiro",
   },
   {
-    icon: <Zap size={20} />,
+    id: "processos", icon: Zap, color: "#34d399",
     title: "Processos 100% manuais",
-    desc: "Tarefas repetitivas que consomem o time e geram erros sistemáticos.",
-    solution: "Mapeamos e automatizamos cada fluxo crítico — agendamentos, cobranças, follow-ups.",
+    pain: "Tarefas repetitivas que consomem o time e geram erros sistemáticos.",
+    product: "Consultoria 4Him",
+    solution: "Diagnóstico completo dos processos. Identificamos os maiores gargalos e desenhamos automações sob medida para cada operação.",
+    metric: "→ redesenho com IA personalizada",
   },
   {
-    icon: <TrendingUp size={20} />,
+    id: "escala", icon: TrendingUp, color: "#f472b6",
     title: "Crescer sem ampliar equipe",
-    desc: "Quer escalar mas não pode contratar. Capacidade limitada segurando o crescimento.",
-    solution: "Agentes de IA escalam infinitamente sem custo proporcional. Cresça sem inflar custo.",
+    pain: "Quer escalar mas não pode contratar. Capacidade limitada segurando o crescimento.",
+    product: "ELO4H + 4Hbel",
+    solution: "Ecossistema completo: atendimento, comercial, inteligência e BPO financeiro em agentes integrados que escalam com o negócio.",
+    metric: "→ escala sem custo proporcional",
   },
 ];
 
-const PILLARS = [
+const ELO4H_TABS = [
   {
-    id: "atendimento",
-    name: "Atendimento",
-    icon: <Headphones size={22} />,
-    tagline: "Atendimento 24h que não perde oportunidade",
+    id: "atendimento", label: "Atendimento",
+    title: "Atendimento 24h que não perde oportunidade",
     desc: "Um agente treinado no seu negócio responde clientes a qualquer hora, em qualquer canal — com o mesmo tom de voz da sua empresa.",
-    features: [
-      { icon: <Clock size={14} />, label: "Disponível 24/7" },
-      { icon: <MessageSquare size={14} />, label: "WhatsApp · Instagram · Site" },
-      { icon: <Volume2 size={14} />, label: "Leitura de áudio e imagem" },
-      { icon: <Brain size={14} />, label: "Respostas humanizadas" },
-      { icon: <UserCheck size={14} />, label: "Handoff para humano quando preciso" },
-      { icon: <History size={14} />, label: "Histórico completo preservado" },
-    ],
+    features: ["Disponível 24/7","WhatsApp · Instagram · Site","Leitura de áudio e imagem","Respostas humanizadas","Handoff para humano","Histórico completo"],
   },
   {
-    id: "comercial",
-    name: "Comercial",
-    icon: <Target size={22} />,
-    tagline: "Conversão comercial que trabalha sem parar",
-    desc: "Qualifica leads, envia propostas, faz follow-up e agenda reuniões — tudo automatizado, integrado ao seu CRM e medido em tempo real.",
-    features: [
-      { icon: <Target size={14} />, label: "Qualificação automática" },
-      { icon: <Repeat size={14} />, label: "Follow-up sistemático" },
-      { icon: <Calendar size={14} />, label: "Agendamento integrado" },
-      { icon: <Database size={14} />, label: "Sincronização com CRM" },
-      { icon: <TrendingUp size={14} />, label: "Pipeline visível" },
-      { icon: <Sparkles size={14} />, label: "Cross-sell inteligente" },
-    ],
+    id: "comercial", label: "Comercial",
+    title: "Qualificação e conversão automatizadas",
+    desc: "Triagem automática de leads, follow-up no tempo certo e agendamento integrado — sem aumentar a equipe.",
+    features: ["Qualificação automática","Follow-up no tempo ideal","Agenda inteligente","Zero conflito de horário","Conversão monitorada","Integração com CRM"],
   },
   {
-    id: "inteligencia",
-    name: "Inteligência",
-    icon: <LineChart size={22} />,
-    tagline: "Inteligência de dados que vira decisão",
-    desc: "Cada conversa vira insight. Dashboards ao vivo, relatórios automáticos e alertas estratégicos — você opera com clareza total.",
-    features: [
-      { icon: <LayoutDashboard size={14} />, label: "Dashboard ao vivo" },
-      { icon: <BarChart3 size={14} />, label: "Métricas por canal" },
-      { icon: <Brain size={14} />, label: "Análise de sentimento" },
-      { icon: <Zap size={14} />, label: "Alertas em tempo real" },
-      { icon: <LineChart size={14} />, label: "Tendências e padrões" },
-      { icon: <Sparkles size={14} />, label: "Recomendações de IA" },
-    ],
+    id: "inteligencia", label: "Inteligência",
+    title: "Dados que viram decisão",
+    desc: "Dashboard em tempo real com métricas por unidade, canal e campanha. Recomendações estratégicas baseadas na operação real.",
+    features: ["Métricas em tempo real","Análise por unidade/canal","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Base para o gestor"],
   },
 ];
 
-const PROCESS_STEPS = [
-  {
-    num: "01",
-    week: "Semana 1",
-    title: "Diagnóstico",
-    desc: "Mergulho na sua operação. Mapeamento de processos, gargalos e oportunidades.",
-    deliverable: "Mapa de processos + relatório",
-  },
-  {
-    num: "02",
-    week: "Semanas 2–3",
-    title: "Desenho",
-    desc: "Arquitetura sob medida. Personalização por CNPJ, fluxos e integrações.",
-    deliverable: "Blueprint da solução",
-  },
-  {
-    num: "03",
-    week: "Semanas 4–6",
-    title: "Implantação",
-    desc: "Implementação, integração e testes rigorosos antes do go-live em produção.",
-    deliverable: "Agente em operação",
-  },
-  {
-    num: "04",
-    week: "Contínuo",
-    title: "Operação",
-    desc: "Monitoramento 24h, ajustes e evolução com base em dados reais de uso.",
-    deliverable: "Relatórios + otimização",
-  },
+const PILLAR_ICONS = [Headphones, Target, LineChart];
+
+const PROCESS = [
+  { n:"01", t:"Diagnóstico",  dur:"Semana 1",          desc:"Mergulho na sua operação. Mapeamento de processos, gargalos e oportunidades.",       out:"Mapa de processos + relatório"   },
+  { n:"02", t:"Desenho",      dur:"Semanas 2–3",       desc:"Arquitetura sob medida. Personalização por CNPJ, canal e equipe — zero template.",  out:"Especificação técnica + fluxos"  },
+  { n:"03", t:"Implantação",  dur:"Semanas 3–5",       desc:"Integrações de canais, treinamento do agente com dados reais e dashboard.",         out:"Agente ativo + dashboard"        },
+  { n:"04", t:"Operação",     dur:"A partir da sem. 6",desc:"Treinamento da equipe, suporte no onboarding e melhorias contínuas inclusas.",      out:"Suporte + revisões mensais"      },
 ];
 
-/* ═══════════════════════════════════════════════════════════════
-   1. NAVBAR
-   ═══════════════════════════════════════════════════════════════ */
-function Navbar({ scrollProgress }) {
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+const STATS = [
+  { v:24,  s:"h",  l:"Disponibilidade do agente" },
+  { v:6,   s:"+",  l:"Canais integrados"         },
+  { v:100, s:"%",  l:"Personalizado por empresa" },
+  { v:0,   s:"",   l:"Templates genéricos"       },
+];
+
+const SECTORS = ["Saúde","Jurídico","Educação","Varejo","Serviços","Imobiliário","Franquias","Indústria"];
+
+const ORBIT_LEFT  = ["Atendimento 24h","Follow-up automático","Dashboard ao vivo"];
+const ORBIT_RIGHT = ["Multicanal","Agenda integrada","Qualificação de leads"];
+
+/* ─────────────────────────────────────────────────────────────
+   Component
+───────────────────────────────────────────────────────────── */
+export default function LandingPage() {
+  const scrollPct = useScrollProgress();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showTop,  setShowTop]  = useState(false);
+  const [mouse,    setMouse]    = useState({ x: -9999, y: -9999 });
+  const [selected, setSelected] = useState(null);
+  const [eloTab,   setEloTab]   = useState(0);
+  const [pillar,   setPillar]   = useState(0);
+
+  const typed = useTypewriter(TYPEWRITER_WORDS);
+
+  /* Stats counters */
+  const statsRef  = useRef(null);
+  const statsView = useInView(statsRef, 0.3);
+  const s0 = useCounter(STATS[0].v, 1400, statsView);
+  const s1 = useCounter(STATS[1].v, 1200, statsView);
+  const s2 = useCounter(STATS[2].v, 1800, statsView);
+  const s3 = useCounter(STATS[3].v,  600, statsView);
+  const counters = [s0, s1, s2, s3];
+
+  /* Horizontal timeline */
+  const timelineRef  = useRef(null);
+  const timelineView = useInView(timelineRef, 0.25);
+
+  /* Tilt effects */
+  const eloTilt  = useTilt(7);
+  const hbelTilt = useTilt(7);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const fn = () => setShowTop(window.scrollY > 700);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const handleNav = (href) => {
-    setOpen(false);
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => {
+    const fn = (e) => setMouse({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", fn, { passive: true });
+    return () => window.removeEventListener("mousemove", fn);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMenuOpen(false);
   };
 
+  const activeBG = selected ? BOTTLENECKS.find(b => b.id === selected) : null;
+  const PIcon = PILLAR_ICONS[pillar];
+
   return (
-    <>
-      <div
-        className="fixed top-0 left-0 z-[100] h-[2px] bg-gradient-to-r from-[#c49a3c] to-[#e8c060]"
-        style={{ width: `${scrollProgress}%`, transition: "width 0.1s linear" }}
-      />
+    <div className="min-h-screen relative overflow-hidden font-inter" style={{ backgroundColor: "#050505", color: "#f5f0e8" }}>
 
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? "bg-[#050505]/90 backdrop-blur-lg border-b border-white/5 py-3" : "py-5"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2.5">
-            <img src={LOGO_ICON_URL} alt="" className="h-9 w-auto" />
-            <div className="leading-tight hidden sm:block">
-              <div className="font-bold text-[#f5f0e8] text-base tracking-tight">
-                4Him<span className="text-[#c49a3c]">.</span>
+      <style>{`
+        @keyframes pulse4h    { 0%,100%{ opacity:.5 } 50%{ opacity:1 } }
+        @keyframes shimmer4h  { from{ background-position:200% 0 } to{ background-position:-200% 0 } }
+        @keyframes fadeIn4h   { from{ opacity:0;transform:translateY(10px) } to{ opacity:1;transform:translateY(0) } }
+        @keyframes fadeInFast { from{ opacity:0 } to{ opacity:1 } }
+        @keyframes marquee4h  { from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+        @keyframes float1     { 0%,100%{ transform:translate(0,0) } 33%{ transform:translate(60px,-40px) } 66%{ transform:translate(-40px,30px) } }
+        @keyframes float2     { 0%,100%{ transform:translate(0,0) } 25%{ transform:translate(-80px,50px) } 75%{ transform:translate(50px,-60px) } }
+        @keyframes float3     { 0%,100%{ transform:translate(0,0) } 50%{ transform:translate(70px,70px) } }
+        @keyframes blink      { 0%,100%{ opacity:1 } 50%{ opacity:0 } }
+        @keyframes slidePanel { from{ opacity:0;transform:translateY(16px) } to{ opacity:1;transform:translateY(0) } }
+        @keyframes scaleIn    { from{ opacity:0;transform:scale(.96) } to{ opacity:1;transform:scale(1) } }
+        @keyframes scanline   { 0%{ top:-4px } 100%{ top:104% } }
+        @keyframes scanV      { 0%,100%{ transform:translateY(-100%) } 50%{ transform:translateY(100%) } }
+        @keyframes pulseRing  { 0%{ transform:scale(1);opacity:1 } 100%{ transform:scale(1.5);opacity:0 } }
+        @keyframes ekgScroll  { from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+        @keyframes floatH     { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-12px) } }
+
+        .lp-btn-primary { transition: transform 200ms ease, box-shadow 200ms ease; }
+        .lp-btn-primary:hover { transform: scale(1.04); box-shadow: 0 12px 40px rgba(196,154,60,.5); }
+        .lp-btn-ghost { transition: border-color 200ms ease, background 200ms ease; }
+        .lp-btn-ghost:hover { background: rgba(196,154,60,.08) !important; border-color: rgba(196,154,60,.5) !important; }
+        .lp-bcard { transition: border-color 220ms ease, background 220ms ease, transform 220ms ease; cursor: pointer; }
+        .lp-bcard:hover { transform: translateY(-3px); }
+        .lp-tab { transition: all 250ms ease; }
+        button:focus-visible, a:focus-visible { outline:2px solid #c49a3c; outline-offset:3px; border-radius:6px; }
+        @media(prefers-reduced-motion:reduce){ *,*::before,*::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; } }
+      `}</style>
+
+      {/* scroll progress bar */}
+      <div aria-hidden style={{ position:"fixed", top:0, left:0, right:0, height:2, zIndex:1000, background:"rgba(255,255,255,.04)" }}>
+        <div style={{ height:"100%", width:`${scrollPct}%`, background:"linear-gradient(90deg,#96682c,#e8c060,#ffe9a8)", transition:"width 80ms linear", borderRadius:2 }} />
+      </div>
+
+      {/* mouse glow */}
+      <div aria-hidden className="fixed inset-0 z-0 pointer-events-none" style={{
+        background: `radial-gradient(650px circle at ${mouse.x}px ${mouse.y}px, rgba(196,154,60,.055), transparent 50%)`,
+        transition: "background 100ms linear",
+      }} />
+
+      {/* drifting orbs */}
+      <div aria-hidden style={{ position:"absolute", top:"-5%", left:"-5%", width:900, height:900, borderRadius:"50%", pointerEvents:"none", zIndex:0, background:"radial-gradient(circle,rgba(196,154,60,.1),transparent 60%)", filter:"blur(100px)", animation:"float1 28s ease-in-out infinite" }} />
+      <div aria-hidden style={{ position:"absolute", top:"40%", right:"-10%", width:700, height:700, borderRadius:"50%", pointerEvents:"none", zIndex:0, background:"radial-gradient(circle,rgba(150,104,44,.09),transparent 60%)", filter:"blur(80px)", animation:"float2 35s ease-in-out infinite" }} />
+      <div aria-hidden style={{ position:"absolute", bottom:"5%", left:"20%", width:500, height:500, borderRadius:"50%", pointerEvents:"none", zIndex:0, background:"radial-gradient(circle,rgba(196,154,60,.07),transparent 60%)", filter:"blur(70px)", animation:"float3 22s ease-in-out infinite" }} />
+
+      {/* dot grid */}
+      <div aria-hidden className="absolute inset-0 z-0 pointer-events-none" style={{
+        backgroundImage: "radial-gradient(rgba(150,104,44,.18) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+        maskImage: "radial-gradient(ellipse at 50% 0%, black 0%, transparent 70%)",
+        WebkitMaskImage: "radial-gradient(ellipse at 50% 0%, black 0%, transparent 70%)",
+      }} />
+
+      {/* ── mobile menu ── */}
+      {menuOpen && (
+        <div role="dialog" aria-modal="true" aria-label="Menu de navegação"
+          className="fixed inset-0 z-[200] flex flex-col"
+          style={{ background:"rgba(5,5,5,.97)", backdropFilter:"blur(24px)", animation:"fadeInFast 200ms ease" }}>
+          <div className="flex items-center justify-between" style={{ padding:"20px 24px" }}>
+            <div className="flex items-center gap-3">
+              <img src={LOGO_ICON_URL} alt="4Him Technology" className="h-9 w-auto" />
+              <div>
+                <div className="font-bold text-sm" style={{ color:"#f5f0e8" }}>4Him<span style={{ color:"#c49a3c" }}>.</span></div>
+                <div className="text-[8px] font-medium uppercase -mt-0.5" style={{ letterSpacing:"0.2em", color:"rgba(245,240,232,.45)" }}>Technology</div>
               </div>
-              <div className="text-[10px] text-[#f5f0e8]/40 tracking-[0.2em]">TECHNOLOGY</div>
             </div>
-          </a>
-
-          <div className="hidden lg:flex items-center gap-1 px-1 py-1 rounded-full border border-white/5 bg-white/[0.02]">
-            {NAV_LINKS.map((l) => (
-              <button
-                key={l.label}
-                onClick={() => handleNav(l.href)}
-                className="px-4 py-2 text-sm text-[#f5f0e8]/70 hover:text-[#c49a3c] hover:bg-white/5 rounded-full transition-all duration-200"
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="hidden lg:flex items-center gap-2.5">
-            <button className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border border-white/10 text-[#f5f0e8]/80 hover:border-[#c49a3c]/40 hover:text-[#c49a3c] transition-all">
-              <LayoutDashboard size={14} />
-              Portal
+            <button onClick={() => setMenuOpen(false)} aria-label="Fechar menu" style={{ color:"rgba(245,240,232,.8)", padding:8, borderRadius:8 }}>
+              <X className="w-6 h-6" />
             </button>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-br from-[#c49a3c] to-[#e8c060] text-[#050505] hover:shadow-[0_0_20px_rgba(196,154,60,0.4)] transition-all duration-300"
-            >
-              Falar com a 4Him
-              <ArrowRight size={14} />
-            </a>
           </div>
+          <nav className="flex flex-col items-center justify-center flex-1 gap-1">
+            {NAV_LINKS.map(([id, label], i) => (
+              <button key={id} onClick={() => scrollTo(id)}
+                className="font-extrabold py-3 px-8 transition-colors duration-200"
+                style={{ fontSize:"clamp(28px,8vw,40px)", color:"rgba(245,240,232,.85)", letterSpacing:"-0.03em", animation:`fadeIn4h 300ms ease ${i*60}ms both` }}
+                onMouseEnter={e => { e.currentTarget.style.color="#c49a3c"; }}
+                onMouseLeave={e => { e.currentTarget.style.color="rgba(245,240,232,.85)"; }}
+              >{label}</button>
+            ))}
+            <div className="flex flex-col gap-3 w-full items-center mt-6"
+              style={{ animation:"fadeIn4h 300ms ease 300ms both", padding:"0 32px", maxWidth:340 }}>
+              <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full w-full"
+                style={{ padding:"16px 28px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:15, boxShadow:"0 8px 32px rgba(196,154,60,.4)" }}>
+                Falar com a 4Him →
+              </button>
+              <button className="lp-btn-ghost font-semibold rounded-full w-full"
+                style={{ padding:"16px 28px", border:"1px solid rgba(196,154,60,.35)", color:"#c49a3c", fontSize:15, background:"transparent" }}>
+                Acessar Portal
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
 
-          <button
-            className="lg:hidden p-2 text-[#f5f0e8]/80 hover:text-[#c49a3c]"
-            onClick={() => setOpen(!open)}
-            aria-label="Menu"
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
+      {/* ════════ NAV ════════ */}
+      <nav className="sticky z-50 flex items-center justify-between" aria-label="Navegação principal"
+        style={{ top:16, margin:"16px 32px 0", padding:"12px 20px", background:"rgba(10,10,10,.7)", backdropFilter:"blur(24px) saturate(1.4)", WebkitBackdropFilter:"blur(24px) saturate(1.4)", border:"1px solid rgba(196,154,60,.18)", borderRadius:100, boxShadow:"0 16px 48px -16px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04)" }}>
+        <div className="flex items-center gap-3">
+          <img src={LOGO_ICON_URL} alt="4Him Technology" className="h-9 w-auto" />
+          <div className="hidden sm:block">
+            <div className="text-sm font-bold" style={{ color:"#f5f0e8", letterSpacing:"-0.01em" }}>4Him<span style={{ color:"#c49a3c" }}>.</span></div>
+            <div className="text-[8px] font-medium uppercase -mt-0.5" style={{ letterSpacing:"0.2em", color:"rgba(245,240,232,.45)" }}>Technology</div>
+          </div>
+        </div>
+        <div className="hidden md:flex gap-1 p-1 rounded-full" style={{ background:"rgba(0,0,0,.3)", border:"1px solid rgba(196,154,60,.08)" }}>
+          {NAV_LINKS.map(([id, label]) => (
+            <button key={id} onClick={() => scrollTo(id)}
+              className="px-3.5 py-[7px] text-xs font-medium rounded-full transition-all duration-200"
+              style={{ color:"rgba(245,240,232,.75)" }}
+              onMouseEnter={e => { e.currentTarget.style.background="rgba(196,154,60,.12)"; e.currentTarget.style.color="#f5f0e8"; }}
+              onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(245,240,232,.75)"; }}
+            >{label}</button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <button aria-label="Acessar portal"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-full lp-btn-ghost"
+            style={{ border:"1px solid rgba(196,154,60,.35)", color:"#c49a3c", background:"transparent" }}>
+            <LayoutDashboard className="w-3.5 h-3.5" aria-hidden /> Portal
+          </button>
+          <button onClick={() => scrollTo("contato")}
+            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-full lp-btn-primary"
+            style={{ background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", boxShadow:"0 4px 20px rgba(196,154,60,.4)" }}>
+            Falar com a 4Him <ArrowRight className="w-3.5 h-3.5" aria-hidden />
+          </button>
+          <button className="md:hidden flex items-center justify-center" onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menu" aria-expanded={menuOpen}
+            style={{ color:"#f5f0e8", padding:8, borderRadius:8, background:"rgba(196,154,60,.1)", border:"1px solid rgba(196,154,60,.2)" }}>
+            <Menu className="w-5 h-5" aria-hidden />
           </button>
         </div>
-
-        {open && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-[#0a0a0a] border-b border-white/5 px-6 py-5">
-            <div className="flex flex-col gap-2">
-              {NAV_LINKS.map((l) => (
-                <button
-                  key={l.label}
-                  onClick={() => handleNav(l.href)}
-                  className="text-left text-[#f5f0e8]/70 hover:text-[#c49a3c] py-2.5 transition-colors"
-                >
-                  {l.label}
-                </button>
-              ))}
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-gradient-to-br from-[#c49a3c] to-[#e8c060] text-[#050505]"
-              >
-                Falar com a 4Him
-                <ArrowRight size={14} />
-              </a>
-            </div>
-          </div>
-        )}
       </nav>
-    </>
-  );
-}
 
-/* ═══════════════════════════════════════════════════════════════
-   2. HERO (LP3)
-   ═══════════════════════════════════════════════════════════════ */
-function Hero() {
-  const typed = useTypewriter(TYPEWRITER_WORDS, 70, 2400);
-  const glowRef = useRef(null);
-
-  useEffect(() => {
-    const onMove = (e) => {
-      if (glowRef.current) {
-        glowRef.current.style.background = `radial-gradient(700px at ${e.clientX}px ${e.clientY}px, rgba(196,154,60,0.06), transparent 70%)`;
-      }
-    };
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
-  }, []);
-
-  return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16">
-      <div ref={glowRef} className="pointer-events-none fixed inset-0 z-0 transition-all duration-300" />
-
-      <div
-        className="absolute inset-0 z-0 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#f5f0e8 1px, transparent 1px), linear-gradient(90deg, #f5f0e8 1px, transparent 1px)",
-          backgroundSize: "70px 70px",
-          maskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
-        }}
-      />
-
-      <div
-        className="absolute top-1/4 right-1/4 w-72 h-72 rounded-full opacity-[0.07] animate-float"
-        style={{ background: "radial-gradient(circle, #c49a3c, transparent 70%)" }}
-      />
-      <div
-        className="absolute bottom-1/4 left-1/5 w-56 h-56 rounded-full opacity-[0.05] animate-float"
-        style={{
-          background: "radial-gradient(circle, #e8c060, transparent 70%)",
-          animationDelay: "2s",
-        }}
-      />
-
-      <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
+      {/* ════════ 1. HERO (LP3 EXATO) ════════ */}
+      <section className="relative z-10 text-center" style={{ padding:"120px 24px 100px", maxWidth:1400, margin:"0 auto" }}>
         <Reveal>
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-[#c49a3c]/30 bg-[#c49a3c]/[0.05] mb-10">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#c49a3c] animate-pulse" />
-            <span className="text-xs text-[#c49a3c] font-medium tracking-wide">
-              Consultoria Estratégica em IA · Ecossistema de produtos sob medida
-            </span>
+          <div className="inline-flex items-center gap-2.5 text-xs font-medium rounded-full"
+            style={{ padding:"7px 18px", border:"1px solid rgba(196,154,60,.3)", color:"#c49a3c", background:"rgba(196,154,60,.06)", marginBottom:40 }}>
+            <span aria-hidden className="rounded-full" style={{ width:6, height:6, background:"#e8c060", boxShadow:"0 0 12px #e8c060" }} />
+            Consultoria Estratégica em IA · Ecossistema de produtos sob medida
           </div>
         </Reveal>
 
         <Reveal delay={100}>
-          <h1 className="font-bold leading-[1.05] tracking-tight mb-8">
-            <span className="block text-5xl md:text-7xl lg:text-[88px] text-[#f5f0e8]">
-              IA estratégica que
-            </span>
-            <span
-              className="block text-5xl md:text-7xl lg:text-[88px] font-serif italic min-h-[1.1em] mt-2"
-              style={{
-                background: "linear-gradient(135deg, #c49a3c 0%, #e8c060 50%, #c49a3c 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              {typed}
-              <span
-                className="inline-block w-1 h-[0.85em] align-middle ml-1 animate-pulse"
-                style={{ background: "#c49a3c" }}
-              />
-            </span>
+          <h1 className="font-extrabold" style={{ fontSize:"clamp(40px,6.5vw,104px)", letterSpacing:"-0.045em", lineHeight:0.93, margin:"0 0 20px", color:"#f5f0e8" }}>
+            IA estratégica que
           </h1>
         </Reveal>
 
         <Reveal delay={200}>
-          <p className="text-base md:text-lg text-[#f5f0e8]/60 max-w-2xl mx-auto leading-relaxed mb-10">
-            Somos uma consultoria que desenha, implanta e opera agentes inteligentes para empresas
-            de qualquer setor. Cada solução é construída sob medida — do diagnóstico à operação contínua.
-          </p>
+          <div style={{ fontSize:"clamp(32px,5.5vw,88px)", fontWeight:900, letterSpacing:"-0.045em", lineHeight:1.05, margin:"0 0 40px", minHeight:"clamp(44px,7vw,100px)", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+            <span style={{
+              fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif',
+              fontStyle:"italic", fontWeight:400,
+              background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)",
+              backgroundSize:"200% 100%",
+              WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text",
+              animation:"shimmer4h 6s linear infinite",
+            }}>
+              {typed}
+            </span>
+            <span aria-hidden style={{ width:3, height:"0.85em", background:"#e8c060", borderRadius:2, animation:"blink 1s ease-in-out infinite", display:"inline-block", verticalAlign:"middle", flexShrink:0 }} />
+          </div>
         </Reveal>
 
         <Reveal delay={300}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
-            <button
-              onClick={() => document.querySelector("#desafio")?.scrollIntoView({ behavior: "smooth" })}
-              className="group flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-[#050505] bg-gradient-to-br from-[#c49a3c] to-[#e8c060] hover:shadow-[0_0_40px_rgba(196,154,60,0.5)] hover:scale-[1.03] transition-all duration-300"
-            >
-              Qual é o seu gargalo?
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          <p style={{ fontSize:"clamp(15px,1.5vw,20px)", lineHeight:1.65, color:"rgba(245,240,232,.62)", maxWidth:680, margin:"0 auto 52px" }}>
+            Somos uma consultoria que desenha, implanta e opera agentes inteligentes para empresas de qualquer setor.
+            Cada solução é construída sob medida — do diagnóstico à operação contínua.
+          </p>
+        </Reveal>
+
+        <Reveal delay={400}>
+          <div className="flex flex-col sm:flex-row gap-3.5 justify-center" style={{ marginBottom:72 }}>
+            <button onClick={() => scrollTo("desafio")} className="lp-btn-primary font-bold rounded-full"
+              style={{ padding:"17px 32px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:14, boxShadow:"0 10px 36px rgba(196,154,60,.5), inset 0 1px 0 rgba(255,255,255,.25)" }}>
+              Qual é o seu gargalo? →
             </button>
-            <button
-              onClick={() => document.querySelector("#produtos")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-8 py-4 rounded-full font-semibold text-[#f5f0e8] border border-[#f5f0e8]/15 hover:border-[#c49a3c]/40 hover:text-[#c49a3c] transition-all"
-            >
+            <button onClick={() => scrollTo("produtos")} className="lp-btn-ghost font-semibold rounded-full"
+              style={{ padding:"17px 32px", background:"rgba(255,255,255,.025)", color:"#f5f0e8", border:"1px solid rgba(196,154,60,.25)", fontSize:14 }}>
               Ver o ecossistema
             </button>
           </div>
         </Reveal>
 
-        <Reveal delay={400}>
-          <div className="flex flex-wrap items-center justify-center gap-2.5">
-            {HERO_FEATURES.map((f) => (
-              <div
-                key={f.label}
-                className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/8 bg-white/[0.02] text-xs text-[#f5f0e8]/70 hover:border-[#c49a3c]/30 hover:text-[#c49a3c] transition-all"
-              >
-                <span className="text-[#c49a3c]">{f.icon}</span>
-                {f.label}
+        <Reveal delay={500}>
+          <div className="flex flex-wrap gap-2.5 justify-center">
+            {[
+              { icon: Clock,       label:"Atendimento 24h"      },
+              { icon: Target,      label:"Qualificação de leads" },
+              { icon: BarChart3,   label:"Dashboard ao vivo"    },
+              { icon: Calendar,    label:"Agenda integrada"     },
+              { icon: Sparkles,    label:"IA personalizada"     },
+              { icon: DollarSign,  label:"BPO Financeiro"       },
+            ].map(({ icon: Icon, label }, i) => (
+              <div key={i} className="flex items-center gap-2 rounded-full font-medium"
+                style={{ padding:"8px 16px", fontSize:12, color:"rgba(245,240,232,.8)", background:"rgba(10,10,10,.7)", border:"1px solid rgba(196,154,60,.15)", backdropFilter:"blur(8px)", boxShadow:"0 4px 16px rgba(0,0,0,.3)", animation:`fadeIn4h 400ms ease ${i*80+600}ms both` }}>
+                <Icon className="w-3.5 h-3.5" style={{ color:"#c49a3c" }} aria-hidden />
+                {label}
               </div>
             ))}
           </div>
         </Reveal>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-/* ═══════════════════════════════════════════════════════════════
-   3. CENTER H + ORBITS + STATS + MARQUEE
-   ═══════════════════════════════════════════════════════════════ */
-function CenterH() {
-  const ref = useRef(null);
-  const inView = useInView(ref, 0.3);
-  const counts = [
-    useCounter(STATS[0].value, 1500, inView),
-    useCounter(STATS[1].value, 1500, inView),
-    useCounter(STATS[2].value, 1800, inView),
-    useCounter(STATS[3].value, 1200, inView),
-  ];
+      {/* ════════ 2. CENTER H + ORBITS + STATS + MARQUEE ════════ */}
+      <section ref={statsRef} className="relative z-10" style={{ padding:"40px 24px 80px" }}>
+        <div className="mx-auto" style={{ maxWidth:1100 }}>
 
-  return (
-    <section ref={ref} className="relative py-24 overflow-hidden">
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#f5f0e8 1px, transparent 1px), linear-gradient(90deg, #f5f0e8 1px, transparent 1px)",
-          backgroundSize: "100px 100px",
-        }}
-      />
+          {/* H + orbital pills */}
+          <div className="relative flex items-center justify-center" style={{ height:"clamp(360px,50vw,500px)", marginBottom:48 }}>
+            {/* glow */}
+            <div aria-hidden style={{ position:"absolute", width:380, height:380, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.4),transparent 60%)", filter:"blur(50px)" }} />
+            {/* rings */}
+            <div aria-hidden style={{ position:"absolute", width:360, height:360, borderRadius:"50%", border:"1px solid rgba(196,154,60,.15)" }} />
+            <div aria-hidden style={{ position:"absolute", width:440, height:440, borderRadius:"50%", border:"1px dashed rgba(196,154,60,.1)" }} />
 
-      <div className="relative max-w-7xl mx-auto px-6">
-        <div className="relative h-[420px] md:h-[460px] mb-16 flex items-center justify-center">
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div
-              className="w-[340px] h-[340px] rounded-full opacity-30"
-              style={{
-                background: "radial-gradient(circle, rgba(196,154,60,0.4), transparent 60%)",
-                filter: "blur(40px)",
-              }}
-            />
+            {/* H logo */}
+            <div className="relative z-10" style={{ animation:"floatH 6s ease-in-out infinite" }}>
+              <img src={LOGO_ICON_URL} alt="" style={{ height:"clamp(180px,24vw,260px)", width:"auto", filter:"drop-shadow(0 0 40px rgba(196,154,60,.35))" }} />
+            </div>
+
+            {/* left orbit */}
+            <div className="hidden md:flex absolute flex-col gap-5" style={{ left:0, top:"50%", transform:"translateY(-50%)" }}>
+              {ORBIT_LEFT.map((label, i) => (
+                <Reveal key={label} delay={i*120} from="left">
+                  <div className="flex items-center gap-2"
+                    style={{ padding:"9px 16px", borderRadius:100, background:"rgba(10,10,10,.85)", border:"1px solid rgba(196,154,60,.2)", backdropFilter:"blur(12px)", fontSize:13, color:"#f5f0e8", boxShadow:"0 8px 24px rgba(0,0,0,.4)", transform:`translateX(${i===1 ? "30px" : "0"})` }}>
+                    <span aria-hidden style={{ width:5, height:5, borderRadius:"50%", background:"#c49a3c", boxShadow:"0 0 8px #c49a3c" }} />
+                    {label}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            {/* right orbit */}
+            <div className="hidden md:flex absolute flex-col gap-5 items-end" style={{ right:0, top:"50%", transform:"translateY(-50%)" }}>
+              {ORBIT_RIGHT.map((label, i) => (
+                <Reveal key={label} delay={i*120} from="right">
+                  <div className="flex items-center gap-2"
+                    style={{ padding:"9px 16px", borderRadius:100, background:"rgba(10,10,10,.85)", border:"1px solid rgba(196,154,60,.2)", backdropFilter:"blur(12px)", fontSize:13, color:"#f5f0e8", boxShadow:"0 8px 24px rgba(0,0,0,.4)", transform:`translateX(${i===1 ? "-30px" : "0"})` }}>
+                    <span aria-hidden style={{ width:5, height:5, borderRadius:"50%", background:"#c49a3c", boxShadow:"0 0 8px #c49a3c" }} />
+                    {label}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            {/* mobile pills */}
+            <div className="md:hidden absolute flex flex-wrap justify-center gap-2 px-4" style={{ bottom:0 }}>
+              {[...ORBIT_LEFT, ...ORBIT_RIGHT].map(label => (
+                <span key={label} style={{ padding:"6px 12px", borderRadius:100, background:"rgba(10,10,10,.85)", border:"1px solid rgba(196,154,60,.2)", fontSize:11, color:"#f5f0e8" }}>
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="absolute w-[360px] h-[360px] rounded-full border border-[#c49a3c]/15" />
-          <div className="absolute w-[420px] h-[420px] rounded-full border border-[#c49a3c]/8" />
-
-          <div className="relative z-10 animate-float">
-            <img
-              src={LOGO_ICON_URL}
-              alt=""
-              className="h-52 md:h-60 w-auto drop-shadow-[0_0_40px_rgba(196,154,60,0.3)]"
-            />
-          </div>
-
-          <div className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 flex-col gap-5">
-            {ORBIT_FEATURES_LEFT.map((f, i) => (
-              <Reveal key={f.label} delay={i * 120} from="left">
-                <div
-                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-[#0a0a0a]/80 backdrop-blur text-sm text-[#f5f0e8]"
-                  style={{ transform: `translateX(${i === 1 ? "30px" : "0"})` }}
-                >
-                  <span className="w-1 h-1 rounded-full bg-[#c49a3c]" />
-                  {f.label}
+          {/* Stats card */}
+          <Reveal>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6"
+              style={{ padding:"36px 28px", borderRadius:24, background:"rgba(10,10,10,.5)", border:"1px solid rgba(196,154,60,.15)", backdropFilter:"blur(8px)" }}>
+              {STATS.map((s, i) => (
+                <div key={i} className="text-center">
+                  <div className="font-black" style={{ fontSize:"clamp(40px,5vw,68px)", lineHeight:1, letterSpacing:"-0.045em", background:"linear-gradient(135deg,#c49a3c,#ffe9a8)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:8 }}>
+                    {counters[i]}{s.s}
+                  </div>
+                  <div style={{ fontSize:12, color:"rgba(245,240,232,.5)", letterSpacing:"0.04em", lineHeight:1.4 }}>{s.l}</div>
                 </div>
-              </Reveal>
-            ))}
-          </div>
-
-          <div className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 flex-col gap-5 items-end">
-            {ORBIT_FEATURES_RIGHT.map((f, i) => (
-              <Reveal key={f.label} delay={i * 120} from="right">
-                <div
-                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-[#0a0a0a]/80 backdrop-blur text-sm text-[#f5f0e8]"
-                  style={{ transform: `translateX(${i === 1 ? "-30px" : "0"})` }}
-                >
-                  <span className="w-1 h-1 rounded-full bg-[#c49a3c]" />
-                  {f.label}
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          <div className="md:hidden absolute -bottom-4 left-0 right-0 flex flex-wrap justify-center gap-2 px-6">
-            {[...ORBIT_FEATURES_LEFT, ...ORBIT_FEATURES_RIGHT].map((f) => (
-              <div
-                key={f.label}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-[#0a0a0a]/80 text-xs text-[#f5f0e8]"
-              >
-                <span className="w-1 h-1 rounded-full bg-[#c49a3c]" />
-                {f.label}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Reveal>
         </div>
 
-        <Reveal>
-          <div className="rounded-3xl border border-white/8 bg-gradient-to-br from-white/[0.03] to-transparent p-8 md:p-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {STATS.map((s, i) => (
-                <div key={s.label} className="text-center md:text-left">
-                  <div
-                    className="text-4xl md:text-5xl font-bold mb-2"
-                    style={{
-                      background: "linear-gradient(135deg, #e8c060, #c49a3c)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
-                    }}
-                  >
-                    {counts[i]}
-                    {s.suffix}
-                  </div>
-                  <p className="text-xs md:text-sm text-[#f5f0e8]/50 leading-snug">{s.label}</p>
+        {/* Marquee */}
+        <div style={{ paddingTop:64 }}>
+          <div style={{ fontSize:10, letterSpacing:"0.3em", color:"rgba(245,240,232,.3)", textAlign:"center", textTransform:"uppercase", marginBottom:16 }}>
+            Para empresas de qualquer setor que tenham atendimento ao cliente
+          </div>
+          <div className="overflow-hidden" style={{ maskImage:"linear-gradient(90deg,transparent 0%,black 12%,black 88%,transparent 100%)", WebkitMaskImage:"linear-gradient(90deg,transparent 0%,black 12%,black 88%,transparent 100%)" }}>
+            <div style={{ display:"flex", width:"max-content", animation:"marquee4h 22s linear infinite" }}>
+              {[...SECTORS,...SECTORS,...SECTORS,...SECTORS].map((s, i) => (
+                <div key={i} className="flex items-center shrink-0">
+                  <span style={{ color:"rgba(245,240,232,.46)", fontSize:13, fontWeight:500, padding:"0 22px", letterSpacing:"0.04em" }}>{s}</span>
+                  <span aria-hidden style={{ color:"rgba(196,154,60,.28)" }}>·</span>
                 </div>
               ))}
             </div>
           </div>
-        </Reveal>
-      </div>
-
-      <div className="relative mt-20 py-4 overflow-hidden border-y border-white/5 bg-[#080808]">
-        <p className="absolute left-1/2 -translate-x-1/2 -top-3 px-3 bg-[#050505] text-[10px] tracking-[0.3em] uppercase text-[#f5f0e8]/30 whitespace-nowrap">
-          Para empresas de qualquer setor que tenham atendimento ao cliente
-        </p>
-        <div className="flex animate-marquee whitespace-nowrap gap-12 mt-4">
-          {[...INDUSTRIES, ...INDUSTRIES, ...INDUSTRIES].map((ind, i) => (
-            <span key={i} className="text-2xl md:text-3xl font-bold text-[#f5f0e8]/15 hover:text-[#c49a3c]/40 transition-colors flex items-center gap-12">
-              {ind}
-              <span className="text-[#c49a3c]/40">·</span>
-            </span>
-          ))}
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-/* ═══════════════════════════════════════════════════════════════
-   4. BOTTLENECKS
-   ═══════════════════════════════════════════════════════════════ */
-function Bottlenecks() {
-  const [expanded, setExpanded] = useState(null);
-
-  return (
-    <section id="desafio" className="py-28 relative">
-      <div className="max-w-7xl mx-auto px-6">
-        <Reveal>
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-3 mb-6">
-              <span className="h-px w-8 bg-[#c49a3c]/40" />
-              <span className="text-xs font-semibold tracking-[0.3em] uppercase text-[#c49a3c]">
-                Qual é o seu maior desafio?
-              </span>
-              <span className="h-px w-8 bg-[#c49a3c]/40" />
-            </div>
-            <h2 className="text-4xl md:text-6xl font-bold text-[#f5f0e8]">
-              Identifique o seu{" "}
-              <span
-                className="font-serif italic"
-                style={{
-                  background: "linear-gradient(135deg, #c49a3c, #e8c060)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                gargalo.
-              </span>
-            </h2>
-            <p className="text-[#f5f0e8]/50 mt-5 max-w-xl mx-auto">
-              Selecione o desafio mais crítico da sua operação e veja como a 4Him resolve.
-            </p>
-          </div>
-        </Reveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {BOTTLENECKS.map((b, i) => {
-            const isOpen = expanded === i;
-            return (
-              <Reveal key={b.title} delay={i * 70}>
-                <button
-                  onClick={() => setExpanded(isOpen ? null : i)}
-                  className={`group relative w-full text-left p-7 rounded-2xl border transition-all duration-300 overflow-hidden h-full ${
-                    isOpen
-                      ? "border-[#c49a3c]/50 bg-gradient-to-br from-[#c49a3c]/[0.08] to-transparent"
-                      : "border-white/8 bg-gradient-to-br from-white/[0.025] to-transparent hover:border-[#c49a3c]/30 hover:from-white/[0.04]"
-                  }`}
-                >
-                  {isOpen && (
-                    <div
-                      className="absolute -top-20 -right-20 w-48 h-48 rounded-full opacity-30 pointer-events-none"
-                      style={{ background: "radial-gradient(circle, rgba(196,154,60,0.5), transparent 70%)" }}
-                    />
-                  )}
-
-                  <div className="relative flex items-start justify-between mb-4">
-                    <div
-                      className={`p-2.5 rounded-xl transition-all ${
-                        isOpen
-                          ? "bg-[#c49a3c]/20 text-[#c49a3c]"
-                          : "bg-white/5 text-[#c49a3c] group-hover:bg-[#c49a3c]/10"
-                      }`}
-                    >
-                      {b.icon}
-                    </div>
-                    <ArrowRight
-                      size={16}
-                      className={`text-[#c49a3c] transition-transform ${
-                        isOpen ? "rotate-90" : "group-hover:translate-x-1"
-                      }`}
-                    />
-                  </div>
-
-                  <h3 className="relative font-semibold text-[#f5f0e8] mb-2 text-base">
-                    {b.title}
-                  </h3>
-                  <p className="relative text-sm text-[#f5f0e8]/55 leading-relaxed">
-                    {isOpen ? b.solution : b.desc}
-                  </p>
-
-                  {isOpen && (
-                    <div className="relative mt-4 pt-4 border-t border-[#c49a3c]/15 flex items-center gap-2 text-xs text-[#c49a3c] font-medium">
-                      <Check size={13} />
-                      Como a 4Him resolve
-                    </div>
-                  )}
-                </button>
-              </Reveal>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   5. THREE PILLARS — DYNAMIC
-   ═══════════════════════════════════════════════════════════════ */
-function ThreePillars() {
-  const [active, setActive] = useState(0);
-  const pillar = PILLARS[active];
-
-  return (
-    <section className="py-28 relative bg-gradient-to-b from-transparent via-[#080808] to-transparent">
-      <div className="max-w-7xl mx-auto px-6">
-        <Reveal>
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-3 mb-6">
-              <span className="h-px w-8 bg-[#c49a3c]/40" />
-              <span className="text-xs font-semibold tracking-[0.3em] uppercase text-[#c49a3c]">
-                O que nossos agentes fazem
-              </span>
-              <span className="h-px w-8 bg-[#c49a3c]/40" />
-            </div>
-            <h2 className="text-4xl md:text-6xl font-bold text-[#f5f0e8]">
-              Três pilares.{" "}
-              <span
-                className="font-serif italic"
-                style={{
-                  background: "linear-gradient(135deg, #c49a3c, #e8c060)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Uma
-              </span>{" "}
-              operação inteira.
-            </h2>
-            <p className="text-[#f5f0e8]/50 mt-5 max-w-2xl mx-auto">
-              Atendimento, conversão comercial e inteligência de dados conectados no mesmo agente —
-              desenhados especificamente para a sua empresa.
-            </p>
-          </div>
-        </Reveal>
-
-        <Reveal delay={100}>
-          <div className="grid grid-cols-3 gap-3 md:gap-6 mb-10 max-w-3xl mx-auto">
-            {PILLARS.map((p, i) => (
-              <button
-                key={p.id}
-                onClick={() => setActive(i)}
-                className="group relative"
-              >
-                <div
-                  className={`relative h-32 md:h-40 rounded-2xl border transition-all duration-500 overflow-hidden ${
-                    active === i
-                      ? "border-[#c49a3c]/60 bg-gradient-to-b from-[#c49a3c]/[0.15] to-[#c49a3c]/[0.02]"
-                      : "border-white/8 bg-white/[0.02] hover:border-[#c49a3c]/30 hover:bg-white/[0.04]"
-                  }`}
-                >
-                  {active === i && (
-                    <>
-                      <div
-                        className="absolute inset-x-0 top-0 h-full opacity-60"
-                        style={{
-                          background:
-                            "linear-gradient(180deg, transparent, rgba(196,154,60,0.15), transparent)",
-                          animation: "scan 3s ease-in-out infinite",
-                        }}
-                      />
-                      <div
-                        className="absolute -top-2 left-1/2 -translate-x-1/2 w-1 h-3 rounded-full"
-                        style={{ background: "#c49a3c", boxShadow: "0 0 20px #c49a3c" }}
-                      />
-                    </>
-                  )}
-
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4 gap-3">
-                    <div
-                      className={`p-2.5 rounded-xl transition-all ${
-                        active === i
-                          ? "bg-[#c49a3c]/20 text-[#c49a3c]"
-                          : "bg-white/5 text-[#f5f0e8]/60 group-hover:text-[#c49a3c]"
-                      }`}
-                    >
-                      {p.icon}
-                    </div>
-                    <span
-                      className={`font-semibold text-sm md:text-base transition-colors ${
-                        active === i ? "text-[#c49a3c]" : "text-[#f5f0e8]/70"
-                      }`}
-                    >
-                      {p.name}
-                    </span>
-                  </div>
-                </div>
-
-                <div
-                  className={`mt-3 text-center text-[10px] font-mono tracking-widest transition-colors ${
-                    active === i ? "text-[#c49a3c]" : "text-[#f5f0e8]/30"
-                  }`}
-                >
-                  PILAR · 0{i + 1}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <div className="max-w-3xl mx-auto px-12 mb-12">
-            <div className="relative h-px bg-gradient-to-r from-transparent via-[#c49a3c]/30 to-transparent">
-              <div
-                className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full transition-all duration-500"
-                style={{
-                  background: "#c49a3c",
-                  boxShadow: "0 0 12px #c49a3c",
-                  left: `calc(${(active / 2) * 100}% - 4px)`,
-                }}
-              />
-            </div>
-            <p className="text-center text-xs text-[#f5f0e8]/30 mt-4 italic">
-              Os três pilares operam em sincronia — um único agente, três frentes.
-            </p>
-          </div>
-        </Reveal>
-
-        <div
-          key={pillar.id}
-          className="relative rounded-3xl border border-[#c49a3c]/20 bg-gradient-to-br from-[#0a0a0a] via-[#0a0a0a] to-[#c49a3c]/[0.04] p-8 md:p-12 overflow-hidden"
-          style={{ animation: "fadeInUp 0.6s ease-out" }}
-        >
-          <div
-            className="absolute -top-20 -right-20 w-72 h-72 rounded-full opacity-20 pointer-events-none"
-            style={{ background: "radial-gradient(circle, rgba(196,154,60,0.5), transparent 60%)" }}
-          />
-
-          <div className="relative grid md:grid-cols-2 gap-10 items-start">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full bg-[#c49a3c]/10 border border-[#c49a3c]/30">
-                <span className="text-[#c49a3c]">{pillar.icon}</span>
-                <span className="text-xs font-semibold text-[#c49a3c] tracking-wider uppercase">
-                  Pilar · {pillar.name}
-                </span>
-              </div>
-              <h3 className="text-2xl md:text-3xl font-bold text-[#f5f0e8] mb-4 leading-tight">
-                {pillar.tagline}
-              </h3>
-              <p className="text-[#f5f0e8]/60 leading-relaxed mb-8">{pillar.desc}</p>
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full font-semibold text-sm text-[#050505] bg-gradient-to-br from-[#c49a3c] to-[#e8c060] hover:shadow-[0_0_25px_rgba(196,154,60,0.4)] transition-all"
-              >
-                Conversar sobre o seu caso
-                <ArrowRight size={14} />
-              </a>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#f5f0e8]/40 mb-5">
-                O que está incluso
+      {/* ════════ 3. BOTTLENECKS (LP3 logic + refined cards) ════════ */}
+      <section id="desafio" className="relative z-10" style={{ padding:"100px 24px", borderTop:"1px solid rgba(196,154,60,.1)" }}>
+        <div className="mx-auto" style={{ maxWidth:1200 }}>
+          <div className="text-center" style={{ marginBottom:56 }}>
+            <Reveal>
+              <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Qual é o seu maior desafio? ────</div>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(28px,4vw,52px)", letterSpacing:"-0.03em", lineHeight:1, margin:"0 0 16px" }}>
+                Identifique o seu{" "}
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, color:"#c49a3c" }}>gargalo.</span>
+              </h2>
+              <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:520, margin:"0 auto" }}>
+                Selecione o desafio mais crítico da sua operação e veja como a 4Him resolve.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {pillar.features.map((f, i) => (
-                  <div
-                    key={f.label}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-white/8 bg-white/[0.02]"
-                    style={{ animation: `fadeInUp 0.4s ease-out ${i * 60}ms backwards` }}
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-[#c49a3c]/15 flex items-center justify-center text-[#c49a3c] flex-shrink-0">
-                      <Check size={13} />
+            </Reveal>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" style={{ marginBottom:24 }}>
+            {BOTTLENECKS.map((b, i) => {
+              const Icon = b.icon;
+              const isActive = selected === b.id;
+              return (
+                <Reveal key={b.id} delay={i * 60}>
+                  <button onClick={() => setSelected(isActive ? null : b.id)}
+                    aria-pressed={isActive}
+                    className="lp-bcard w-full text-left h-full"
+                    style={{
+                      padding:"26px 28px", borderRadius:20,
+                      background: isActive
+                        ? `linear-gradient(155deg,${b.color}18,rgba(10,10,10,.85))`
+                        : "linear-gradient(155deg,rgba(196,154,60,.04),rgba(10,10,10,.85))",
+                      border: isActive ? `1px solid ${b.color}` : "1px solid rgba(196,154,60,.14)",
+                      boxShadow: isActive ? `0 0 40px ${b.color}22, 0 16px 32px rgba(0,0,0,.5)` : "0 8px 24px rgba(0,0,0,.3)",
+                    }}>
+                    <div className="flex items-start gap-4">
+                      <div style={{ width:42, height:42, borderRadius:12, flexShrink:0, background:isActive ? `${b.color}22` : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? b.color : "rgba(196,154,60,.18)"}`, display:"flex", alignItems:"center", justifyContent:"center", color:isActive ? b.color : "#c49a3c", transition:"all 220ms ease" }}>
+                        <Icon style={{ width:18, height:18 }} aria-hidden />
+                      </div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div className="font-bold" style={{ fontSize:15, color:isActive ? "#f5f0e8" : "rgba(245,240,232,.92)", marginBottom:6, letterSpacing:"-0.01em" }}>
+                          {b.title}
+                        </div>
+                        <div style={{ fontSize:13, lineHeight:1.6, color:"rgba(245,240,232,.55)" }}>{b.pain}</div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 shrink-0 mt-0.5" aria-hidden
+                        style={{ color:isActive ? b.color : "rgba(196,154,60,.35)", transform:isActive ? "rotate(90deg)" : "", transition:"transform 220ms ease" }} />
                     </div>
-                    <span className="text-sm text-[#f5f0e8]/80">{f.label}</span>
+                  </button>
+                </Reveal>
+              );
+            })}
+          </div>
+
+          {/* solution panel */}
+          {selected && activeBG && (
+            <div style={{ animation:"slidePanel 320ms cubic-bezier(.34,1.4,.64,1)" }}>
+              <div style={{ padding:"clamp(24px,4vw,40px)", borderRadius:24, background:`linear-gradient(135deg,${activeBG.color}14,rgba(10,10,10,.7))`, border:`1px solid ${activeBG.color}55`, boxShadow:`0 0 60px ${activeBG.color}18, 0 24px 48px rgba(0,0,0,.5)` }}>
+                <div className="grid gap-8 md:grid-cols-[1fr_auto]">
+                  <div>
+                    <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"5px 12px", borderRadius:100, marginBottom:18, background:`${activeBG.color}18`, border:`1px solid ${activeBG.color}44`, fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:activeBG.color }}>
+                      {activeBG.product}
+                    </div>
+                    <h3 className="font-bold" style={{ fontSize:"clamp(20px,3vw,32px)", color:"#f5f0e8", margin:"0 0 14px", letterSpacing:"-0.02em" }}>
+                      Como resolvemos esse desafio
+                    </h3>
+                    <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.7)", margin:"0 0 20px", maxWidth:600 }}>
+                      {activeBG.solution}
+                    </p>
+                    <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"8px 16px", borderRadius:100, background:`${activeBG.color}10`, border:`1px solid ${activeBG.color}30`, fontSize:13, color:activeBG.color, fontWeight:700 }}>
+                      <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden />
+                      {activeBG.metric}
+                    </div>
                   </div>
-                ))}
+                  <div className="flex items-center">
+                    <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full whitespace-nowrap"
+                      style={{ padding:"16px 28px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:14, boxShadow:"0 8px 28px rgba(196,154,60,.45)" }}>
+                      Quero essa solução →
+                    </button>
+                  </div>
+                </div>
               </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ════════ 4. PRODUCTS (LP3 EXATO) ════════ */}
+      <section id="produtos" className="relative z-10" style={{ padding:"120px 24px", borderTop:"1px solid rgba(196,154,60,.12)" }}>
+        <div className="mx-auto" style={{ maxWidth:1300 }}>
+          <div className="text-center" style={{ marginBottom:72 }}>
+            <Reveal>
+              <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Ecossistema de produtos ────</div>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.05, margin:"0 0 16px" }}>
+                Cada produto resolve um{" "}
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, color:"#c49a3c" }}>gargalo específico.</span>
+              </h2>
+              <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:560, margin:"0 auto" }}>
+                Começamos pelo mais crítico e expandimos. Cada empresa tem seu próprio caminho.
+              </p>
+            </Reveal>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+            {/* ELO4H */}
+            <Reveal className="lg:col-span-2">
+              <div ref={eloTilt.ref} onMouseMove={eloTilt.onMouseMove} onMouseLeave={eloTilt.onMouseLeave}
+                style={{ borderRadius:28, overflow:"hidden", height:"100%", background:"linear-gradient(155deg,rgba(150,104,44,.18),rgba(10,10,10,.75))", border:"1px solid rgba(196,154,60,.3)", boxShadow:"0 24px 64px -16px rgba(0,0,0,.7)", transformStyle:"preserve-3d" }}>
+
+                <div style={{ padding:"32px 36px 0", position:"relative" }}>
+                  <div aria-hidden style={{ position:"absolute", top:0, right:0, width:300, height:300, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.15),transparent 65%)", filter:"blur(40px)" }} />
+                  <div className="flex items-start justify-between" style={{ marginBottom:20, position:"relative" }}>
+                    <div>
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(196,154,60,.12)", border:"1px solid rgba(196,154,60,.3)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#e8c060", marginBottom:14 }}>
+                        <span aria-hidden style={{ width:5, height:5, borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 6px #4ade80" }} />
+                        Produto principal · Ativo
+                      </div>
+                      <div className="font-black" style={{ fontSize:64, letterSpacing:"-0.04em", lineHeight:0.88, background:"linear-gradient(135deg,#f5f0e8 20%,#c49a3c 60%,#96682c 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+                        ELO4H
+                      </div>
+                    </div>
+                  </div>
+                  <p style={{ fontSize:15, lineHeight:1.6, color:"rgba(245,240,232,.65)", maxWidth:500, marginBottom:28, position:"relative" }}>
+                    Nosso agente de atendimento e inteligência comercial. Carro-chefe da 4Him — normalmente a primeira implementação.
+                  </p>
+
+                  <div role="tablist" aria-label="Módulos ELO4H" className="flex gap-1"
+                    style={{ padding:"6px", background:"rgba(0,0,0,.35)", borderRadius:14, border:"1px solid rgba(196,154,60,.12)", width:"fit-content" }}>
+                    {ELO4H_TABS.map((tab, i) => (
+                      <button key={tab.id} role="tab" aria-selected={eloTab===i}
+                        aria-controls={`elo-panel-${i}`}
+                        onClick={() => setEloTab(i)}
+                        className="lp-tab rounded-[10px] font-semibold"
+                        style={{ padding:"9px 18px", fontSize:12, background:eloTab===i ? "linear-gradient(135deg,#96682c,#c49a3c)" : "transparent", color:eloTab===i ? "#050505" : "rgba(245,240,232,.65)", boxShadow:eloTab===i ? "0 2px 12px rgba(196,154,60,.3)" : "none" }}>
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div id={`elo-panel-${eloTab}`} role="tabpanel" key={eloTab}
+                  style={{ padding:"28px 36px 36px", animation:"scaleIn 250ms ease" }}>
+                  <h3 className="font-bold" style={{ fontSize:"clamp(18px,2vw,26px)", color:"#f5f0e8", margin:"0 0 12px", letterSpacing:"-0.02em" }}>
+                    {ELO4H_TABS[eloTab].title}
+                  </h3>
+                  <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", margin:"0 0 24px", maxWidth:500 }}>
+                    {ELO4H_TABS[eloTab].desc}
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {ELO4H_TABS[eloTab].features.map((f, i) => (
+                      <div key={i} className="flex items-center gap-2"
+                        style={{ padding:"10px 12px", background:"rgba(10,10,10,.55)", border:"1px solid rgba(196,154,60,.1)", borderRadius:10, fontSize:12, color:"rgba(245,240,232,.82)" }}>
+                        <div aria-hidden style={{ width:14, height:14, borderRadius:4, background:"linear-gradient(135deg,#96682c,#c49a3c)", color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <Check className="w-2 h-2" strokeWidth={4} />
+                        </div>
+                        {f}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            <div className="flex flex-col gap-5">
+              <Reveal delay={100} className="flex-1">
+                <div ref={hbelTilt.ref} onMouseMove={hbelTilt.onMouseMove} onMouseLeave={hbelTilt.onMouseLeave}
+                  style={{ borderRadius:24, padding:"28px 28px 32px", height:"100%", background:"linear-gradient(155deg,rgba(167,139,250,.12),rgba(10,10,10,.75))", border:"1px solid rgba(167,139,250,.3)", boxShadow:"0 24px 48px -16px rgba(0,0,0,.6)", transformStyle:"preserve-3d" }}>
+                  <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(167,139,250,.12)", border:"1px solid rgba(167,139,250,.35)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#a78bfa", marginBottom:16 }}>
+                    BPO Financeiro · Novo
+                  </div>
+                  <div className="font-black" style={{ fontSize:44, letterSpacing:"-0.04em", lineHeight:0.9, background:"linear-gradient(135deg,#e0d7ff,#a78bfa)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:14 }}>
+                    4Hbel
+                  </div>
+                  <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", marginBottom:20 }}>
+                    IA aplicada ao BPO financeiro. Automação de conciliações, relatórios automáticos e previsibilidade de fluxo de caixa.
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {["Conciliação automática","Relatórios em tempo real","Previsibilidade de fluxo","Redução de custo operacional"].map((f, i) => (
+                      <div key={i} className="flex items-center gap-2.5" style={{ fontSize:12, color:"rgba(245,240,232,.75)" }}>
+                        <div aria-hidden style={{ width:14, height:14, borderRadius:4, background:"linear-gradient(135deg,#7c3aed,#a78bfa)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <Check className="w-2 h-2" strokeWidth={4} />
+                        </div>
+                        {f}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={160}>
+                <div style={{ padding:"22px 24px", borderRadius:20, background:"rgba(10,10,10,.4)", border:"1px dashed rgba(196,154,60,.18)", display:"flex", alignItems:"center", gap:14 }}>
+                  <div style={{ width:40, height:40, borderRadius:11, background:"rgba(196,154,60,.06)", border:"1px solid rgba(196,154,60,.15)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <Lock className="w-4 h-4" style={{ color:"rgba(196,154,60,.4)" }} aria-hidden />
+                  </div>
+                  <div>
+                    <div className="font-semibold" style={{ fontSize:14, color:"rgba(245,240,232,.5)", marginBottom:2 }}>Mais produtos em breve</div>
+                    <div style={{ fontSize:11, color:"rgba(245,240,232,.3)" }}>Novas soluções verticais chegando</div>
+                  </div>
+                </div>
+              </Reveal>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-/* ═══════════════════════════════════════════════════════════════
-   6. PRODUCTS
-   ═══════════════════════════════════════════════════════════════ */
-function Products() {
-  const [tab, setTab] = useState(0);
-
-  return (
-    <section id="produtos" className="py-28">
-      <div className="max-w-7xl mx-auto px-6">
-        <Reveal>
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-3 mb-6">
-              <span className="h-px w-8 bg-[#c49a3c]/40" />
-              <span className="text-xs font-semibold tracking-[0.3em] uppercase text-[#c49a3c]">
-                Ecossistema de produtos
-              </span>
-              <span className="h-px w-8 bg-[#c49a3c]/40" />
-            </div>
-            <h2 className="text-4xl md:text-6xl font-bold text-[#f5f0e8]">
-              Cada produto resolve um{" "}
-              <span
-                className="font-serif italic"
-                style={{
-                  background: "linear-gradient(135deg, #c49a3c, #e8c060)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                gargalo específico.
-              </span>
-            </h2>
-            <p className="text-[#f5f0e8]/50 mt-5 max-w-xl mx-auto">
-              Começamos pelo mais crítico e expandimos. Cada empresa tem seu próprio caminho.
-            </p>
+      {/* ════════ 5. HORIZONTAL TIMELINE (LP2 → horizontal) ════════ */}
+      <section id="metodo" ref={timelineRef} className="relative z-10" style={{ padding:"120px 24px", borderTop:"1px solid rgba(196,154,60,.12)" }}>
+        <div className="mx-auto" style={{ maxWidth:1300 }}>
+          <div className="text-center" style={{ marginBottom:80 }}>
+            <Reveal>
+              <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── Como funciona ────</div>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,56px)", letterSpacing:"-0.03em", lineHeight:1, margin:0 }}>
+                Do diagnóstico à{" "}
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, color:"#c49a3c" }}>operação.</span>
+              </h2>
+            </Reveal>
           </div>
-        </Reveal>
 
-        <div className="grid lg:grid-cols-3 gap-5">
-          <Reveal className="lg:col-span-2">
-            <div className="relative h-full p-8 md:p-10 rounded-3xl border border-[#c49a3c]/30 bg-gradient-to-br from-[#0a0a0a] to-[#c49a3c]/[0.04] overflow-hidden">
-              <div
-                className="absolute -top-32 -right-32 w-80 h-80 rounded-full opacity-15 pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(196,154,60,0.6), transparent 60%)" }}
-              />
+          {/* Horizontal timeline */}
+          <div className="relative">
+            {/* horizontal line */}
+            <div aria-hidden className="hidden lg:block absolute" style={{ top:30, left:"6%", right:"6%", height:2, background:"rgba(196,154,60,.12)", borderRadius:2 }}>
+              <div style={{ height:"100%", width: timelineView ? "100%" : "0%", background:"linear-gradient(90deg,#96682c,#e8c060,#ffe9a8)", transition:"width 2.4s cubic-bezier(.34,1,.64,1)", borderRadius:2, boxShadow:"0 0 12px rgba(196,154,60,.5)" }} />
+            </div>
 
-              <div className="relative">
-                <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-[10px] font-semibold tracking-widest uppercase text-emerald-400">
-                    Produto Principal · Ativo
-                  </span>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-4 relative">
+              {PROCESS.map((step, i) => {
+                const delay = i * 250;
+                return (
+                  <div key={step.n} className="relative"
+                    style={{
+                      opacity: timelineView ? 1 : 0,
+                      transform: timelineView ? "translateY(0)" : "translateY(40px)",
+                      transition: `opacity 0.7s ease-out ${delay}ms, transform 0.7s cubic-bezier(.16,1,.3,1) ${delay}ms`,
+                    }}>
+                    {/* numbered node */}
+                    <div className="hidden lg:flex justify-center" style={{ marginBottom:36 }}>
+                      <div className="font-extrabold flex items-center justify-center relative"
+                        style={{
+                          width:60, height:60, borderRadius:16,
+                          background: timelineView ? "linear-gradient(135deg,#96682c,#c49a3c)" : "rgba(20,20,20,.8)",
+                          fontSize:18,
+                          color: timelineView ? "#050505" : "rgba(245,240,232,.4)",
+                          boxShadow: timelineView ? "0 8px 32px rgba(196,154,60,.5), inset 0 1px 0 rgba(255,255,255,.2)" : "none",
+                          transition:`background 600ms ease ${delay+200}ms, color 600ms ease ${delay+200}ms, box-shadow 600ms ease ${delay+200}ms`,
+                          zIndex:1,
+                        }}>
+                        {step.n}
+                        {timelineView && (
+                          <span aria-hidden style={{ position:"absolute", inset:0, borderRadius:16, border:"2px solid #c49a3c", animation:`pulseRing 2.4s ease-out ${delay+800}ms infinite` }} />
+                        )}
+                      </div>
+                    </div>
 
-                <h3
-                  className="text-5xl md:text-6xl font-black mb-4 tracking-tight"
-                  style={{
-                    background: "linear-gradient(135deg, #c49a3c, #e8c060, #c49a3c)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  ELO4H
-                </h3>
-
-                <p className="text-[#f5f0e8]/60 leading-relaxed mb-8 max-w-lg">
-                  Nosso agente de atendimento e inteligência comercial. Carro-chefe da 4Him —
-                  normalmente a primeira implementação.
-                </p>
-
-                <div className="inline-flex p-1 rounded-full border border-white/10 bg-white/[0.03] mb-7">
-                  {PILLARS.map((p, i) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setTab(i)}
-                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                        tab === i
-                          ? "bg-gradient-to-br from-[#c49a3c] to-[#e8c060] text-[#050505]"
-                          : "text-[#f5f0e8]/60 hover:text-[#c49a3c]"
-                      }`}
-                    >
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-
-                <div key={tab} style={{ animation: "fadeInUp 0.4s ease-out" }}>
-                  <h4 className="text-xl md:text-2xl font-bold text-[#f5f0e8] mb-4">
-                    {PILLARS[tab].tagline}
-                  </h4>
-                  <p className="text-[#f5f0e8]/55 mb-6 leading-relaxed">
-                    {PILLARS[tab].desc}
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {PILLARS[tab].features.slice(0, 6).map((f) => (
-                      <div
-                        key={f.label}
-                        className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-white/8 bg-white/[0.02]"
-                      >
-                        <div className="w-6 h-6 rounded-md bg-[#c49a3c]/15 flex items-center justify-center text-[#c49a3c] flex-shrink-0">
-                          <Check size={12} />
+                    {/* card */}
+                    <div style={{ padding:"24px 26px", borderRadius:20, background:"rgba(10,10,10,.6)", border:"1px solid rgba(196,154,60,.15)", backdropFilter:"blur(8px)", height:"100%" }}>
+                      {/* mobile number */}
+                      <div className="lg:hidden flex items-center gap-3" style={{ marginBottom:16 }}>
+                        <div className="font-extrabold flex items-center justify-center"
+                          style={{ width:50, height:50, borderRadius:14, background:"linear-gradient(135deg,#96682c,#c49a3c)", fontSize:16, color:"#050505" }}>
+                          {step.n}
                         </div>
-                        <span className="text-xs md:text-sm text-[#f5f0e8]/80">{f.label}</span>
+                      </div>
+                      <div style={{ fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6, background:"rgba(196,154,60,.1)", border:"1px solid rgba(196,154,60,.22)", color:"#c49a3c", display:"inline-block", marginBottom:14 }}>{step.dur}</div>
+                      <h3 className="font-bold" style={{ fontSize:21, color:"#f5f0e8", margin:"0 0 10px" }}>{step.t}</h3>
+                      <p style={{ fontSize:14, lineHeight:1.7, color:"rgba(245,240,232,.6)", margin:"0 0 14px" }}>{step.desc}</p>
+                      <div className="flex items-center gap-2" style={{ fontSize:12, color:"#c49a3c", padding:"8px 12px", borderRadius:8, background:"rgba(196,154,60,.06)", border:"1px solid rgba(196,154,60,.14)" }}>
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                        {step.out}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════ 6. THREE PILLARS — DYNAMIC ════════ */}
+      <section id="pilares" className="relative z-10" style={{ padding:"120px 24px", borderTop:"1px solid rgba(196,154,60,.12)" }}>
+        <div className="mx-auto" style={{ maxWidth:1300 }}>
+          <div className="text-center" style={{ marginBottom:56 }}>
+            <Reveal>
+              <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── O que nossos agentes fazem ────</div>
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.05, margin:"0 0 16px" }}>
+                Três pilares.{" "}
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, color:"#c49a3c" }}>Uma</span>{" "}
+                operação inteira.
+              </h2>
+              <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:620, margin:"0 auto" }}>
+                Atendimento, conversão comercial e inteligência de dados conectados no mesmo agente — desenhados especificamente para a sua empresa.
+              </p>
+            </Reveal>
+          </div>
+
+          {/* Pillar towers */}
+          <Reveal>
+            <div className="grid grid-cols-3 gap-3 md:gap-5" style={{ maxWidth:760, margin:"0 auto 32px" }}>
+              {ELO4H_TABS.map((p, i) => {
+                const Icon = PILLAR_ICONS[i];
+                const isActive = pillar === i;
+                return (
+                  <button key={p.id} onClick={() => setPillar(i)} className="group relative">
+                    <div className="relative overflow-hidden" style={{
+                      height:"clamp(120px,16vw,160px)", borderRadius:18,
+                      background: isActive ? "linear-gradient(180deg,rgba(196,154,60,.18),rgba(196,154,60,.02))" : "rgba(10,10,10,.6)",
+                      border: isActive ? "1px solid rgba(196,154,60,.6)" : "1px solid rgba(196,154,60,.14)",
+                      transition: "all 400ms ease",
+                    }}>
+                      {isActive && (
+                        <>
+                          <div aria-hidden style={{ position:"absolute", inset:0, background:"linear-gradient(180deg,transparent,rgba(196,154,60,.12),transparent)", animation:"scanV 3s ease-in-out infinite", opacity:.6 }} />
+                          <div aria-hidden style={{ position:"absolute", top:-2, left:"50%", transform:"translateX(-50%)", width:3, height:8, borderRadius:2, background:"#e8c060", boxShadow:"0 0 16px #e8c060" }} />
+                        </>
+                      )}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ padding:16 }}>
+                        <div style={{ width:44, height:44, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", background:isActive ? "rgba(196,154,60,.22)" : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? "rgba(196,154,60,.5)" : "rgba(196,154,60,.18)"}`, color:isActive ? "#e8c060" : "#c49a3c", transition:"all 300ms ease" }}>
+                          <Icon className="w-5 h-5" aria-hidden />
+                        </div>
+                        <div className="font-bold" style={{ fontSize:"clamp(14px,1.4vw,17px)", color:isActive ? "#f5f0e8" : "rgba(245,240,232,.75)", letterSpacing:"-0.01em" }}>
+                          {p.label}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ marginTop:10, fontFamily:"monospace", fontSize:10, letterSpacing:"0.2em", color:isActive ? "#c49a3c" : "rgba(245,240,232,.3)", textAlign:"center", transition:"color 300ms ease" }}>
+                      PILAR · 0{i+1}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* connecting line */}
+            <div style={{ maxWidth:760, margin:"0 auto 40px", padding:"0 48px" }}>
+              <div style={{ position:"relative", height:1, background:"linear-gradient(90deg,transparent,rgba(196,154,60,.3),transparent)" }}>
+                <div style={{ position:"absolute", top:"50%", transform:"translateY(-50%)", width:8, height:8, borderRadius:"50%", background:"#e8c060", boxShadow:"0 0 16px #e8c060", left:`calc(${(pillar/2)*100}% - 4px)`, transition:"left 500ms cubic-bezier(.34,1,.64,1)" }} />
+              </div>
+              <p style={{ textAlign:"center", marginTop:16, fontSize:11, fontStyle:"italic", color:"rgba(245,240,232,.35)" }}>
+                Os três pilares operam em sincronia — um único agente, três frentes.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* Active pillar content */}
+          <div key={pillar} style={{ animation:"slidePanel 400ms cubic-bezier(.34,1.4,.64,1)" }}>
+            <div style={{ padding:"clamp(28px,4vw,48px)", borderRadius:28, background:"linear-gradient(135deg,rgba(196,154,60,.08),rgba(10,10,10,.85))", border:"1px solid rgba(196,154,60,.25)", boxShadow:"0 0 80px rgba(196,154,60,.08), 0 24px 48px rgba(0,0,0,.5)", position:"relative", overflow:"hidden" }}>
+              <div aria-hidden style={{ position:"absolute", top:-100, right:-100, width:380, height:380, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.18),transparent 60%)", filter:"blur(50px)" }} />
+
+              <div className="relative grid md:grid-cols-2 gap-10 items-start">
+                <div>
+                  <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"6px 14px", borderRadius:100, marginBottom:20, background:"rgba(196,154,60,.12)", border:"1px solid rgba(196,154,60,.35)", fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"#e8c060" }}>
+                    <PIcon className="w-3.5 h-3.5" aria-hidden />
+                    Pilar · {ELO4H_TABS[pillar].label}
+                  </div>
+                  <h3 className="font-bold" style={{ fontSize:"clamp(22px,2.8vw,32px)", color:"#f5f0e8", margin:"0 0 16px", letterSpacing:"-0.02em", lineHeight:1.15 }}>
+                    {ELO4H_TABS[pillar].title}
+                  </h3>
+                  <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.65)", margin:"0 0 28px" }}>
+                    {ELO4H_TABS[pillar].desc}
+                  </p>
+                  <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full"
+                    style={{ padding:"14px 26px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:13, boxShadow:"0 8px 28px rgba(196,154,60,.45)" }}>
+                    Conversar sobre o seu caso →
+                  </button>
+                </div>
+                <div>
+                  <div className="uppercase" style={{ fontSize:10, letterSpacing:"0.28em", color:"rgba(245,240,232,.45)", marginBottom:18 }}>O que está incluso</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {ELO4H_TABS[pillar].features.map((f, i) => (
+                      <div key={i} className="flex items-center gap-3"
+                        style={{ padding:"12px 14px", background:"rgba(5,5,5,.5)", border:"1px solid rgba(196,154,60,.14)", borderRadius:12, fontSize:13, color:"rgba(245,240,232,.85)", animation:`fadeIn4h 350ms ease ${i*60}ms both` }}>
+                        <div aria-hidden style={{ width:18, height:18, borderRadius:6, background:"linear-gradient(135deg,#96682c,#c49a3c)", color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <Check className="w-2.5 h-2.5" strokeWidth={4} />
+                        </div>
+                        {f}
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
-          </Reveal>
-
-          <Reveal delay={150} className="space-y-5">
-            <div className="relative p-7 rounded-3xl border border-purple-500/20 bg-gradient-to-br from-[#0a0a0a] to-purple-500/[0.04] overflow-hidden">
-              <div
-                className="absolute -top-20 -right-20 w-48 h-48 rounded-full opacity-15 pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(168,85,247,0.5), transparent 60%)" }}
-              />
-              <div className="relative">
-                <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-                  <span className="text-[10px] font-semibold tracking-widest uppercase text-purple-300">
-                    BPO Financeiro · Novo
-                  </span>
-                </div>
-                <h3 className="text-3xl md:text-4xl font-black text-purple-300 mb-3 tracking-tight">
-                  4Hbel
-                </h3>
-                <p className="text-sm text-[#f5f0e8]/55 leading-relaxed mb-5">
-                  IA aplicada ao BPO financeiro. Automação de conciliações, relatórios automáticos
-                  e previsibilidade de fluxo de caixa.
-                </p>
-                <ul className="space-y-2.5">
-                  {[
-                    "Conciliação automática",
-                    "Relatórios em tempo real",
-                    "Previsibilidade de fluxo",
-                    "Redução de custo operacional",
-                  ].map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm text-[#f5f0e8]/75">
-                      <div className="w-5 h-5 rounded-md bg-purple-500/15 flex items-center justify-center text-purple-300 flex-shrink-0">
-                        <Check size={11} />
-                      </div>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="relative p-6 rounded-3xl border border-white/8 bg-white/[0.015]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[#f5f0e8]/30">
-                  <Lock size={16} />
-                </div>
-                <div>
-                  <p className="font-semibold text-[#f5f0e8]/70 text-sm">Mais produtos em breve</p>
-                  <p className="text-xs text-[#f5f0e8]/40">Novas soluções verticais chegando</p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   7. HORIZONTAL TIMELINE
-   ═══════════════════════════════════════════════════════════════ */
-function HorizontalTimeline() {
-  const ref = useRef(null);
-  const inView = useInView(ref, 0.25);
-
-  return (
-    <section id="metodo" ref={ref} className="py-28 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <Reveal>
-          <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-3 mb-6">
-              <span className="h-px w-8 bg-[#c49a3c]/40" />
-              <span className="text-xs font-semibold tracking-[0.3em] uppercase text-[#c49a3c]">
-                Como funciona
-              </span>
-              <span className="h-px w-8 bg-[#c49a3c]/40" />
-            </div>
-            <h2 className="text-4xl md:text-6xl font-bold text-[#f5f0e8]">
-              Do diagnóstico à{" "}
-              <span
-                className="font-serif italic"
-                style={{
-                  background: "linear-gradient(135deg, #c49a3c, #e8c060)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                operação.
-              </span>
-            </h2>
-          </div>
-        </Reveal>
-
-        <div className="relative">
-          <div className="hidden lg:block absolute top-[88px] left-0 right-0 h-px bg-white/8">
-            <div
-              className="h-full bg-gradient-to-r from-[#c49a3c] via-[#e8c060] to-[#c49a3c] transition-all duration-[2.5s] ease-out"
-              style={{ width: inView ? "100%" : "0%" }}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-4 relative">
-            {PROCESS_STEPS.map((s, i) => {
-              const delay = i * 250;
-              return (
-                <div
-                  key={s.num}
-                  className="relative"
-                  style={{
-                    opacity: inView ? 1 : 0,
-                    transform: inView ? "translateY(0)" : "translateY(40px)",
-                    transition: `opacity 0.7s ease-out ${delay}ms, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
-                  }}
-                >
-                  <div className="hidden lg:flex justify-center mb-6">
-                    <div
-                      className="relative w-14 h-14 rounded-2xl flex items-center justify-center font-black text-base z-10 transition-all duration-500"
-                      style={{
-                        background: inView ? "linear-gradient(135deg, #c49a3c, #e8c060)" : "#1a1a1a",
-                        color: inView ? "#050505" : "#f5f0e8",
-                        boxShadow: inView ? "0 0 30px rgba(196,154,60,0.4)" : "none",
-                        transitionDelay: `${delay + 200}ms`,
-                      }}
-                    >
-                      {s.num}
-                      {inView && (
-                        <span
-                          className="absolute inset-0 rounded-2xl border-2 border-[#c49a3c]"
-                          style={{ animation: `pulseRing 2s ease-out ${delay + 600}ms infinite` }}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-6 rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.025] to-transparent hover:border-[#c49a3c]/30 transition-all">
-                    <div className="lg:hidden flex items-center gap-3 mb-4">
-                      <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-base"
-                        style={{
-                          background: "linear-gradient(135deg, #c49a3c, #e8c060)",
-                          color: "#050505",
-                        }}
-                      >
-                        {s.num}
-                      </div>
-                    </div>
-
-                    <span className="inline-block px-2.5 py-1 rounded-md bg-[#c49a3c]/10 border border-[#c49a3c]/20 text-[10px] font-semibold tracking-wider uppercase text-[#c49a3c] mb-4">
-                      {s.week}
-                    </span>
-                    <h3 className="text-xl font-bold text-[#f5f0e8] mb-3">{s.title}</h3>
-                    <p className="text-sm text-[#f5f0e8]/55 leading-relaxed mb-5">{s.desc}</p>
-                    <div className="flex items-center gap-2 pt-4 border-t border-white/5">
-                      <div className="w-5 h-5 rounded-md bg-[#c49a3c]/15 flex items-center justify-center text-[#c49a3c]">
-                        <Check size={11} />
-                      </div>
-                      <span className="text-xs text-[#f5f0e8]/70 font-medium">{s.deliverable}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-/* ═══════════════════════════════════════════════════════════════
-   8. CTA + EKG ANIMATION
-   ═══════════════════════════════════════════════════════════════ */
-function CTASection() {
-  return (
-    <section id="contato" className="relative py-28 overflow-hidden">
-      <div className="absolute inset-0 flex flex-col justify-center pointer-events-none">
-        {[0, 1, 2].map((idx) => (
-          <div
-            key={idx}
-            className="relative w-full h-32 overflow-hidden opacity-40"
-            style={{
-              marginTop: idx === 0 ? "-40px" : "0",
-              marginBottom: idx === 2 ? "-40px" : "0",
-            }}
-          >
-            <svg
-              className="absolute top-1/2 left-0 -translate-y-1/2"
-              width="200%"
-              height="100%"
-              viewBox="0 0 2400 100"
-              preserveAspectRatio="none"
-              style={{
-                animation: `ekgScroll ${12 + idx * 2}s linear infinite`,
-                animationDelay: `${idx * -3}s`,
-              }}
-            >
-              <path
-                d="M0,50 L300,50 L320,50 L340,30 L360,70 L380,20 L400,50 L420,50 L600,50 L620,50 L640,30 L660,10 L680,90 L700,30 L720,50 L900,50 L920,50 L940,40 L960,60 L980,50 L1200,50 L1220,30 L1240,70 L1260,20 L1280,50 L1500,50 L1520,40 L1540,10 L1560,90 L1580,30 L1600,50 L1800,50 L1820,30 L1840,70 L1860,20 L1880,50 L2100,50 L2120,40 L2140,60 L2160,50 L2400,50"
-                fill="none"
-                stroke={`url(#ekgGradient-${idx})`}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <defs>
-                <linearGradient id={`ekgGradient-${idx}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#c49a3c" stopOpacity="0" />
-                  <stop offset="20%" stopColor="#c49a3c" stopOpacity="0.6" />
-                  <stop offset="50%" stopColor="#e8c060" stopOpacity="1" />
-                  <stop offset="80%" stopColor="#c49a3c" stopOpacity="0.6" />
-                  <stop offset="100%" stopColor="#c49a3c" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-        ))}
-      </div>
+      {/* ════════ 7. CTA + EKG ANIMATION ════════ */}
+      <section id="contato" className="relative z-10" style={{ padding:"60px 24px 80px" }}>
+        {/* EKG cardiac lines */}
+        <div aria-hidden className="absolute inset-0 flex flex-col justify-center pointer-events-none" style={{ overflow:"hidden" }}>
+          {[0,1,2].map(idx => (
+            <div key={idx} style={{ position:"relative", width:"100%", height:120, overflow:"hidden", opacity:.5, marginTop: idx===0 ? -40 : 0, marginBottom: idx===2 ? -40 : 0 }}>
+              <svg style={{ position:"absolute", top:"50%", left:0, transform:"translateY(-50%)", animation:`ekgScroll ${14+idx*2}s linear infinite`, animationDelay:`${idx*-3}s` }}
+                width="200%" height="100%" viewBox="0 0 2400 100" preserveAspectRatio="none">
+                <path
+                  d="M0,50 L300,50 L320,50 L340,30 L360,70 L380,20 L400,50 L420,50 L600,50 L620,50 L640,30 L660,10 L680,90 L700,30 L720,50 L900,50 L920,50 L940,40 L960,60 L980,50 L1200,50 L1220,30 L1240,70 L1260,20 L1280,50 L1500,50 L1520,40 L1540,10 L1560,90 L1580,30 L1600,50 L1800,50 L1820,30 L1840,70 L1860,20 L1880,50 L2100,50 L2120,40 L2140,60 L2160,50 L2400,50"
+                  fill="none" stroke={`url(#ekg-${idx})`} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                />
+                <defs>
+                  <linearGradient id={`ekg-${idx}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%"  stopColor="#c49a3c" stopOpacity="0" />
+                    <stop offset="20%" stopColor="#c49a3c" stopOpacity=".5" />
+                    <stop offset="50%" stopColor="#ffe9a8" stopOpacity="1" />
+                    <stop offset="80%" stopColor="#c49a3c" stopOpacity=".5" />
+                    <stop offset="100%" stopColor="#c49a3c" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+          ))}
+        </div>
 
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#f5f0e8 1px, transparent 1px), linear-gradient(90deg, #f5f0e8 1px, transparent 1px)",
-          backgroundSize: "80px 80px",
-        }}
-      />
-
-      <div className="relative z-10 max-w-4xl mx-auto px-6">
         <Reveal>
-          <div className="relative rounded-3xl border border-[#c49a3c]/20 bg-gradient-to-br from-[#0a0a0a]/95 via-[#0a0a0a]/95 to-[#c49a3c]/[0.04] backdrop-blur-sm p-10 md:p-16 text-center overflow-hidden">
-            <div
-              className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-30 pointer-events-none"
-              style={{ background: "radial-gradient(circle, rgba(196,154,60,0.4), transparent 60%)" }}
-            />
+          <div className="relative mx-auto overflow-hidden"
+            style={{ maxWidth:1200, borderRadius:36, background:"linear-gradient(135deg,rgba(150,104,44,.24),rgba(10,10,10,.85))", border:"1px solid rgba(196,154,60,.3)", boxShadow:"0 40px 80px -32px rgba(0,0,0,.9), 0 0 120px rgba(196,154,60,.1)", backdropFilter:"blur(8px)" }}>
+            <div aria-hidden style={{ position:"absolute", left:0, right:0, height:4, background:"linear-gradient(90deg,transparent,rgba(196,154,60,.08),transparent)", animation:"scanline 5s ease-in-out infinite", top:0, zIndex:0 }} />
+            <div aria-hidden style={{ position:"absolute", left:"50%", top:"-60%", transform:"translateX(-50%)", width:700, height:700, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.14),transparent 60%)", filter:"blur(80px)", zIndex:0 }} />
 
-            <div className="relative">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#c49a3c]/30 bg-[#c49a3c]/[0.05] mb-8">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#c49a3c] animate-pulse" />
-                <span className="text-xs font-medium text-[#c49a3c] tracking-wide">
-                  Sem compromisso · Diagnóstico gratuito
-                </span>
+            <div className="relative z-10 text-center" style={{ padding:"clamp(48px,6vw,88px) clamp(24px,5vw,80px)" }}>
+              <div className="inline-flex items-center gap-2.5 text-xs font-medium rounded-full"
+                style={{ padding:"7px 18px", border:"1px solid rgba(196,154,60,.35)", color:"#c49a3c", background:"rgba(196,154,60,.08)", marginBottom:28 }}>
+                <span aria-hidden style={{ width:6, height:6, borderRadius:"50%", background:"#e8c060", boxShadow:"0 0 12px #e8c060" }} />
+                Sem compromisso · Diagnóstico gratuito
               </div>
-
-              <h2 className="text-4xl md:text-6xl font-bold text-[#f5f0e8] mb-6 leading-[1.1]">
-                Vamos resolver os
-                <br />
-                <span
-                  className="font-serif italic"
-                  style={{
-                    background: "linear-gradient(135deg, #c49a3c, #e8c060)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
+              <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,5vw,68px)", letterSpacing:"-0.045em", lineHeight:0.95, margin:"0 0 24px", color:"#f5f0e8" }}>
+                Vamos resolver os{" "}<br />
+                <span style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite" }}>
                   seus gargalos.
                 </span>
               </h2>
-
-              <p className="text-base md:text-lg text-[#f5f0e8]/60 max-w-2xl mx-auto leading-relaxed mb-10">
-                Converse com a 4Him. Entendemos seu processo, mapeamos oportunidades e desenhamos
-                uma solução sob medida — do atendimento ao BPO financeiro.
+              <p style={{ fontSize:"clamp(15px,1.5vw,19px)", color:"rgba(245,240,232,.65)", maxWidth:560, margin:"0 auto 44px", lineHeight:1.65 }}>
+                Converse com a 4Him. Entendemos seu processo, mapeamos oportunidades e desenhamos uma solução sob medida — do atendimento ao BPO financeiro.
               </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-2 px-7 py-4 rounded-full font-semibold text-[#050505] bg-gradient-to-br from-[#c49a3c] to-[#e8c060] hover:shadow-[0_0_45px_rgba(196,154,60,0.6)] hover:scale-[1.03] transition-all duration-300"
-                >
-                  Agendar diagnóstico gratuito
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </a>
-                <a
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-7 py-4 rounded-full font-semibold text-[#f5f0e8] border border-white/15 hover:border-[#c49a3c]/40 hover:text-[#c49a3c] transition-all"
-                >
-                  <MessageCircle size={16} />
-                  Falar no WhatsApp
-                </a>
+              <div className="flex flex-col sm:flex-row gap-3.5 justify-center">
+                <button onClick={() => window.open("mailto:contato@4himtechnology.com","_blank")}
+                  className="lp-btn-primary font-bold rounded-full"
+                  style={{ padding:"18px 36px", background:"linear-gradient(135deg,#e8c060,#ffe9a8)", color:"#050505", fontSize:15, boxShadow:"0 14px 40px rgba(255,233,168,.4), inset 0 1px 0 rgba(255,255,255,.4)" }}>
+                  Agendar diagnóstico gratuito →
+                </button>
+                <button onClick={() => window.open(WHATSAPP_URL,"_blank")}
+                  className="lp-btn-ghost font-semibold rounded-full flex items-center justify-center gap-2"
+                  style={{ padding:"18px 36px", background:"transparent", color:"#f5f0e8", border:"1px solid rgba(245,240,232,.2)", fontSize:15 }}>
+                  <MessageCircle className="w-4 h-4" aria-hidden /> Falar no WhatsApp
+                </button>
               </div>
             </div>
           </div>
         </Reveal>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-/* ═══════════════════════════════════════════════════════════════
-   9. FOOTER
-   ═══════════════════════════════════════════════════════════════ */
-function Footer() {
-  const year = new Date().getFullYear();
-
-  return (
-    <footer className="relative border-t border-white/5 py-14">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
-          <div className="md:col-span-4">
-            <div className="flex items-center gap-3 mb-5">
-              <img src={LOGO_ICON_URL} alt="" className="h-9 w-auto" />
-              <div className="leading-tight">
-                <div className="font-bold text-[#f5f0e8] text-base tracking-tight">
-                  4Him Technology
+      {/* ════════ FOOTER (LP3 EXATO) ════════ */}
+      <footer className="relative z-10" style={{ padding:"64px 24px 32px", borderTop:"1px solid rgba(196,154,60,.12)" }}>
+        <div className="mx-auto" style={{ maxWidth:1300 }}>
+          <div className="grid gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]" style={{ marginBottom:48 }}>
+            <div>
+              <div className="flex items-center gap-3" style={{ marginBottom:16 }}>
+                <img src={LOGO_ICON_URL} alt="" className="h-10 w-auto" />
+                <div>
+                  <div className="font-bold" style={{ fontSize:16, color:"#f5f0e8" }}>4Him Technology</div>
+                  <div className="uppercase" style={{ fontSize:9, letterSpacing:"0.22em", color:"rgba(245,240,232,.4)" }}>Consultoria em IA</div>
                 </div>
-                <div className="text-[10px] text-[#c49a3c] tracking-[0.2em]">CONSULTORIA EM IA</div>
+              </div>
+              <p style={{ fontSize:13, lineHeight:1.7, color:"rgba(245,240,232,.5)", maxWidth:320, margin:"0 0 20px" }}>
+                Consultoria estratégica em IA. Desenhamos, implantamos e operamos soluções sob medida — do diagnóstico à operação contínua.
+              </p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { name:"ELO4H", desc:"Atendimento · Comercial · Inteligência", color:"#c49a3c" },
+                  { name:"4Hbel", desc:"BPO Financeiro",                         color:"#a78bfa" },
+                ].map(p => (
+                  <div key={p.name} className="flex items-center gap-2.5"
+                    style={{ padding:"7px 12px", borderRadius:10, background:"rgba(255,255,255,.025)", border:"1px solid rgba(255,255,255,.06)" }}>
+                    <div style={{ width:6, height:6, borderRadius:"50%", background:p.color, boxShadow:`0 0 8px ${p.color}`, flexShrink:0 }} aria-hidden />
+                    <span className="font-bold" style={{ fontSize:12, color:p.color }}>{p.name}</span>
+                    <span style={{ fontSize:11, color:"rgba(245,240,232,.4)" }}>—</span>
+                    <span style={{ fontSize:11, color:"rgba(245,240,232,.45)" }}>{p.desc}</span>
+                  </div>
+                ))}
               </div>
             </div>
-            <p className="text-sm text-[#f5f0e8]/45 leading-relaxed mb-6 max-w-sm">
-              Consultoria estratégica em IA. Desenhamos, implantamos e operamos soluções sob
-              medida — do diagnóstico à operação contínua.
-            </p>
-            <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-[#c49a3c]/20 bg-[#c49a3c]/[0.03] w-fit">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#c49a3c]" />
-                <span className="text-xs font-bold text-[#c49a3c]">ELO4H</span>
-                <span className="text-xs text-[#f5f0e8]/40">— Atendimento · Comercial · Inteligência</span>
+
+            {[
+              ["Soluções", ["ELO4H","4Hbel","Agentes customizados","Consultoria estratégica"]],
+              ["Método",   ["Diagnóstico","Desenho","Implantação","Operação contínua"]],
+              ["Contato",  [
+                { icon:Mail,   label:"contato@4himtechnology.com", href:"mailto:contato@4himtechnology.com" },
+                { icon:Globe,  label:"www.4himtechnology.com",     href:"https://www.4himtechnology.com"   },
+                { icon:MapPin, label:"Brasil",                      href:null },
+              ]],
+            ].map(([h, items], i) => (
+              <div key={i}>
+                <div className="uppercase" style={{ fontSize:10, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>{h}</div>
+                {items.map((v, j) => {
+                  if (typeof v === "string") return <div key={j} style={{ fontSize:13, color:"rgba(245,240,232,.65)", padding:"6px 0" }}>{v}</div>;
+                  const Icon = v.icon;
+                  const inner = <><Icon className="w-3.5 h-3.5 shrink-0" style={{ color:"#c49a3c" }} aria-hidden />{v.label}</>;
+                  return v.href
+                    ? <a key={j} href={v.href} target={v.href.startsWith("http")?"_blank":undefined} rel={v.href.startsWith("http")?"noopener noreferrer":undefined} className="flex items-center gap-2" style={{ fontSize:13, color:"rgba(245,240,232,.65)", padding:"6px 0", textDecoration:"none" }}>{inner}</a>
+                    : <div key={j} className="flex items-center gap-2" style={{ fontSize:13, color:"rgba(245,240,232,.65)", padding:"6px 0" }}>{inner}</div>;
+                })}
               </div>
-              <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-purple-500/20 bg-purple-500/[0.03] w-fit">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-                <span className="text-xs font-bold text-purple-300">4Hbel</span>
-                <span className="text-xs text-[#f5f0e8]/40">— BPO Financeiro</span>
-              </div>
-            </div>
+            ))}
           </div>
 
-          <div className="md:col-span-2">
-            <h4 className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#f5f0e8]/40 mb-5">
-              Soluções
-            </h4>
-            <ul className="space-y-3">
-              {["ELO4H", "4Hbel", "Agentes customizados", "Consultoria estratégica"].map((i) => (
-                <li key={i}>
-                  <a href="#produtos" className="text-sm text-[#f5f0e8]/60 hover:text-[#c49a3c] transition-colors">
-                    {i}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="md:col-span-2">
-            <h4 className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#f5f0e8]/40 mb-5">
-              Método
-            </h4>
-            <ul className="space-y-3">
-              {PROCESS_STEPS.map((s) => (
-                <li key={s.title}>
-                  <a href="#metodo" className="text-sm text-[#f5f0e8]/60 hover:text-[#c49a3c] transition-colors">
-                    {s.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="md:col-span-4">
-            <h4 className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#f5f0e8]/40 mb-5">
-              Contato
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <a
-                  href="mailto:contato@4himtechnology.com"
-                  className="flex items-center gap-3 text-sm text-[#f5f0e8]/60 hover:text-[#c49a3c] transition-colors group"
-                >
-                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[#c49a3c] group-hover:bg-[#c49a3c]/15 transition-colors">
-                    <Mail size={13} />
-                  </div>
-                  contato@4himtechnology.com
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.4himtechnology.com"
-                  className="flex items-center gap-3 text-sm text-[#f5f0e8]/60 hover:text-[#c49a3c] transition-colors group"
-                >
-                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[#c49a3c] group-hover:bg-[#c49a3c]/15 transition-colors">
-                    <Globe size={13} />
-                  </div>
-                  www.4himtechnology.com
-                </a>
-              </li>
-              <li className="flex items-center gap-3 text-sm text-[#f5f0e8]/60">
-                <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center text-[#c49a3c]">
-                  <MapPin size={13} />
-                </div>
-                Brasil
-              </li>
-            </ul>
+          <div className="flex flex-col md:flex-row md:justify-between gap-2"
+            style={{ paddingTop:24, borderTop:"1px solid rgba(196,154,60,.1)", fontSize:11, color:"rgba(245,240,232,.3)" }}>
+            <div>© {new Date().getFullYear()} 4Him Technology. Todos os direitos reservados.</div>
+            <div>Consultoria estratégica em IA — do diagnóstico à operação.</div>
           </div>
         </div>
+      </footer>
 
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#f5f0e8]/30">
-            © {year} 4Him Technology. Todos os direitos reservados.
-          </p>
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-xs text-[#f5f0e8]/30 hover:text-[#c49a3c] transition-colors">
-              Privacidade
-            </a>
-            <a href="#" className="text-xs text-[#f5f0e8]/30 hover:text-[#c49a3c] transition-colors">
-              Termos
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-function ScrollToTop({ scrollProgress }) {
-  if (scrollProgress < 20) return null;
-  return (
-    <button
-      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-gradient-to-br from-[#c49a3c] to-[#e8c060] text-[#050505] flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200"
-      aria-label="Voltar ao topo"
-    >
-      <ChevronUp size={18} />
-    </button>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   MAIN PAGE
-   ═══════════════════════════════════════════════════════════════ */
-export default function LandingPage() {
-  const scrollProgress = useScrollProgress();
-
-  return (
-    <div className="min-h-screen bg-[#050505] text-[#f5f0e8]">
-      <Navbar scrollProgress={scrollProgress} />
-      <Hero />
-      <CenterH />
-      <Bottlenecks />
-      <ThreePillars />
-      <Products />
-      <HorizontalTimeline />
-      <CTASection />
-      <Footer />
-      <ScrollToTop scrollProgress={scrollProgress} />
-
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scan {
-          0%, 100% { transform: translateY(-100%); }
-          50% { transform: translateY(100%); }
-        }
-        @keyframes pulseRing {
-          0% { transform: scale(1); opacity: 1; }
-          100% { transform: scale(1.5); opacity: 0; }
-        }
-        @keyframes ekgScroll {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-      `}</style>
+      {/* scroll to top */}
+      {showTop && (
+        <button onClick={() => window.scrollTo({ top:0, behavior:"smooth" })} aria-label="Voltar ao topo"
+          className="fixed flex items-center justify-center transition-all duration-200 hover:scale-110"
+          style={{ bottom:24, right:24, zIndex:50, width:44, height:44, borderRadius:12, background:"rgba(10,10,10,.88)", border:"1px solid rgba(196,154,60,.4)", color:"#c49a3c", backdropFilter:"blur(12px)", boxShadow:"0 8px 24px rgba(0,0,0,.5)", animation:"fadeIn4h 300ms ease" }}>
+          <ChevronUp className="w-5 h-5" aria-hidden />
+        </button>
+      )}
     </div>
   );
 }
