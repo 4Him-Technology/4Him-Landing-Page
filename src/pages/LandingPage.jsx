@@ -227,7 +227,7 @@ const BOTTLENECKS = [
     id: "custom", icon: Lightbulb, color: "#34d399",
     title: "Tem um problema fora do padrão",
     pain: "A demanda não se encaixa em produto pronto. Você precisa de uma solução totalmente sob medida.",
-    product: "Lab4H",
+    product: "Mari4h",
     solution: "Agente de soluções customizadas. Se pode ser feito com IA, fazemos. Da automação inusitada à integração estratégica — o céu é o limite.",
     metric: "→ qualquer problema, qualquer escala",
   },
@@ -346,6 +346,8 @@ export default function LandingPage() {
   /* Tilt effects */
   const eloTilt  = useTilt(7);
   const hbelTilt = useTilt(7);
+  const adTilt   = useTilt(7);
+  const mariTilt = useTilt(7);
 
   useEffect(() => {
     const fn = () => setShowTop(window.scrollY > 700);
@@ -395,6 +397,9 @@ export default function LandingPage() {
         @keyframes floatH4h   { 0%,100%{ transform:translateY(0) rotate(-2deg) } 50%{ transform:translateY(-18px) rotate(2deg) } }
         @keyframes floatBadge4h { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-9px) } }
         @keyframes spin4h     { from{ transform:rotate(0) } to{ transform:rotate(360deg) } }
+        @keyframes pulseGlow  { 0%,100%{ opacity:.55; transform:scale(1) } 50%{ opacity:1; transform:scale(1.08) } }
+        @keyframes barRise    { 0%{ transform:scaleY(.3) } 50%{ transform:scaleY(1) } 100%{ transform:scaleY(.5) } }
+        @keyframes orbit      { from{ transform:rotate(0deg) translateX(22px) rotate(0deg) } to{ transform:rotate(360deg) translateX(22px) rotate(-360deg) } }
         @keyframes slideMsg   { from{ opacity:0;transform:translateY(8px) } to{ opacity:1;transform:translateY(0) } }
         @keyframes typingDot  { 0%,80%,100%{ opacity:0 } 40%{ opacity:1 } }
         @keyframes floatA     { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-8px) } }
@@ -1028,9 +1033,17 @@ export default function LandingPage() {
             <div className="flex flex-col gap-5">
               <Reveal delay={100} className="flex-1">
                 <div ref={hbelTilt.ref} onMouseMove={hbelTilt.onMouseMove} onMouseLeave={hbelTilt.onMouseLeave}
+                  className="relative overflow-hidden"
                   style={{ borderRadius:24, padding:"28px 28px 32px", height:"100%", background:"linear-gradient(155deg,rgba(167,139,250,.12),rgba(10,10,10,.75))", border:"1px solid rgba(167,139,250,.3)", boxShadow:"0 24px 48px -16px rgba(0,0,0,.6)", transformStyle:"preserve-3d" }}>
+                  {/* dynamic icon — animated bar chart */}
+                  <div aria-hidden style={{ position:"absolute", top:24, right:24, width:56, height:56, borderRadius:14, background:"radial-gradient(circle,rgba(167,139,250,.25),rgba(10,10,10,.6))", border:"1px solid rgba(167,139,250,.35)", display:"flex", alignItems:"flex-end", justifyContent:"center", gap:3, padding:8, boxShadow:"0 8px 24px rgba(167,139,250,.25)" }}>
+                    <span aria-hidden style={{ position:"absolute", inset:-2, borderRadius:16, border:"1px solid rgba(167,139,250,.25)", animation:"pulseGlow 2.4s ease-in-out infinite" }} />
+                    {[0.4, 0.7, 0.55, 0.9].map((h, i) => (
+                      <span key={i} style={{ width:6, height:`${h*100}%`, background:"linear-gradient(180deg,#e0d7ff,#a78bfa)", borderRadius:2, transformOrigin:"bottom", animation:`barRise 2s ease-in-out ${i*0.18}s infinite` }} />
+                    ))}
+                  </div>
                   <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(167,139,250,.12)", border:"1px solid rgba(167,139,250,.35)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#a78bfa", marginBottom:16 }}>
-                    BPO Financeiro · Novo
+                    <LineChart className="w-3 h-3" aria-hidden /> BPO Financeiro · Novo
                   </div>
                   <div className="font-black" style={{ fontSize:44, letterSpacing:"-0.04em", lineHeight:0.9, background:"linear-gradient(135deg,#e0d7ff,#a78bfa)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:14 }}>
                     4Hbel
@@ -1053,7 +1066,15 @@ export default function LandingPage() {
 
               {/* Ad4hn — mídias sociais */}
               <Reveal delay={160} className="flex-1">
-                <div style={{ borderRadius:24, padding:"28px 28px 32px", height:"100%", background:"linear-gradient(155deg,rgba(236,72,153,.12),rgba(10,10,10,.75))", border:"1px solid rgba(236,72,153,.3)", boxShadow:"0 24px 48px -16px rgba(0,0,0,.6)" }}>
+                <div ref={adTilt.ref} onMouseMove={adTilt.onMouseMove} onMouseLeave={adTilt.onMouseLeave}
+                  className="relative overflow-hidden"
+                  style={{ borderRadius:24, padding:"28px 28px 32px", height:"100%", background:"linear-gradient(155deg,rgba(236,72,153,.12),rgba(10,10,10,.75))", border:"1px solid rgba(236,72,153,.3)", boxShadow:"0 24px 48px -16px rgba(0,0,0,.6)", transformStyle:"preserve-3d" }}>
+                  {/* dynamic icon — megaphone with pulse rings */}
+                  <div aria-hidden style={{ position:"absolute", top:24, right:24, width:56, height:56, borderRadius:14, background:"radial-gradient(circle,rgba(236,72,153,.25),rgba(10,10,10,.6))", border:"1px solid rgba(236,72,153,.35)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 8px 24px rgba(236,72,153,.25)" }}>
+                    <span aria-hidden style={{ position:"absolute", inset:-2, borderRadius:16, border:"1px solid rgba(236,72,153,.3)", animation:"pulseGlow 2.4s ease-in-out infinite" }} />
+                    <span aria-hidden style={{ position:"absolute", inset:-10, borderRadius:22, border:"1px solid rgba(236,72,153,.18)", animation:"pulseGlow 2.4s ease-in-out 0.4s infinite" }} />
+                    <Megaphone style={{ width:22, height:22, color:"#fbcfe8" }} />
+                  </div>
                   <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(236,72,153,.12)", border:"1px solid rgba(236,72,153,.35)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#f472b6", marginBottom:16 }}>
                     <Megaphone className="w-3 h-3" aria-hidden /> Mídias sociais
                   </div>
@@ -1076,14 +1097,23 @@ export default function LandingPage() {
                 </div>
               </Reveal>
 
-              {/* Lab4H — soluções customizadas */}
+              {/* Mari4h — soluções customizadas */}
               <Reveal delay={220} className="flex-1">
-                <div style={{ borderRadius:24, padding:"28px 28px 32px", height:"100%", background:"linear-gradient(155deg,rgba(52,211,153,.12),rgba(10,10,10,.75))", border:"1px solid rgba(52,211,153,.3)", boxShadow:"0 24px 48px -16px rgba(0,0,0,.6)" }}>
+                <div ref={mariTilt.ref} onMouseMove={mariTilt.onMouseMove} onMouseLeave={mariTilt.onMouseLeave}
+                  className="relative overflow-hidden"
+                  style={{ borderRadius:24, padding:"28px 28px 32px", height:"100%", background:"linear-gradient(155deg,rgba(52,211,153,.12),rgba(10,10,10,.75))", border:"1px solid rgba(52,211,153,.3)", boxShadow:"0 24px 48px -16px rgba(0,0,0,.6)", transformStyle:"preserve-3d" }}>
+                  {/* dynamic icon — lightbulb with orbiting particles */}
+                  <div aria-hidden style={{ position:"absolute", top:24, right:24, width:56, height:56, borderRadius:14, background:"radial-gradient(circle,rgba(52,211,153,.25),rgba(10,10,10,.6))", border:"1px solid rgba(52,211,153,.35)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 8px 24px rgba(52,211,153,.25)" }}>
+                    <span aria-hidden style={{ position:"absolute", inset:-2, borderRadius:16, border:"1px solid rgba(52,211,153,.3)", animation:"pulseGlow 2.6s ease-in-out infinite" }} />
+                    <Lightbulb style={{ width:22, height:22, color:"#a7f3d0", animation:"pulseGlow 2.6s ease-in-out infinite" }} />
+                    <span aria-hidden style={{ position:"absolute", left:"50%", top:"50%", width:6, height:6, marginLeft:-3, marginTop:-3, borderRadius:"50%", background:"#34d399", boxShadow:"0 0 8px #34d399", animation:"orbit 4s linear infinite" }} />
+                    <span aria-hidden style={{ position:"absolute", left:"50%", top:"50%", width:4, height:4, marginLeft:-2, marginTop:-2, borderRadius:"50%", background:"#a7f3d0", boxShadow:"0 0 6px #a7f3d0", animation:"orbit 5s linear -1.5s infinite reverse" }} />
+                  </div>
                   <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:"rgba(52,211,153,.12)", border:"1px solid rgba(52,211,153,.35)", fontSize:10, fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:"#34d399", marginBottom:16 }}>
                     <Lightbulb className="w-3 h-3" aria-hidden /> Soluções sob medida
                   </div>
                   <div className="font-black" style={{ fontSize:44, letterSpacing:"-0.04em", lineHeight:0.9, background:"linear-gradient(135deg,#a7f3d0,#10b981)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:14 }}>
-                    Lab4H
+                    Mari4h
                   </div>
                   <p style={{ fontSize:14, lineHeight:1.65, color:"rgba(245,240,232,.6)", marginBottom:20 }}>
                     Agente de soluções customizadas. Se pode ser feito com IA, fazemos. O céu é o limite — qualquer problema, qualquer escala.
