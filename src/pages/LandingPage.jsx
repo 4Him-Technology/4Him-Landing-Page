@@ -846,8 +846,8 @@ export default function LandingPage() {
           {/* solution panel */}
           {selected && activeBG && (
             <div style={{ animation:"slidePanel 320ms cubic-bezier(.34,1.4,.64,1)" }}>
-              <div style={{ borderRadius:24, padding:2, background:agentBorder(activeBG.agents), boxShadow:"0 0 60px rgba(196,154,60,.12), 0 24px 48px rgba(0,0,0,.5)" }}>
-                <div style={{ padding:"clamp(24px,4vw,40px)", borderRadius:22, background:"linear-gradient(135deg,rgba(196,154,60,.06),rgba(10,10,10,.92))" }}>
+              <div style={{ borderRadius:24, padding:2, background:agentBorder(activeBG.agents), boxShadow: activeBG.agents.length === 1 ? `0 0 32px ${AGENT_COLORS[activeBG.agents[0]]}66, 0 0 8px ${AGENT_COLORS[activeBG.agents[0]]}44, 0 24px 48px rgba(0,0,0,.6)` : `0 0 32px ${AGENT_COLORS[activeBG.agents[0]]}55, 0 0 32px ${AGENT_COLORS[activeBG.agents[1] || activeBG.agents[0]]}55, 0 24px 48px rgba(0,0,0,.6)` }}>
+                <div style={{ padding:"clamp(24px,4vw,40px)", borderRadius:22, background:"linear-gradient(135deg, #14100a, #0a0a0a)" }}>
                   <div className="grid gap-8 md:grid-cols-[1fr_auto]">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom:18 }}>
@@ -1315,12 +1315,19 @@ export default function LandingPage() {
                 const isActive = pillar === i;
                 const borderBg = agentBorder(p.agents);
                 const thickness = isActive ? 2 : 1;
+                const primaryColor = AGENT_COLORS[p.agents[0]];
+                const secondColor = AGENT_COLORS[p.agents[1] || p.agents[0]];
+                const neonGlow = isActive
+                  ? (p.agents.length === 1
+                      ? `0 0 24px ${primaryColor}66, 0 0 6px ${primaryColor}44`
+                      : `0 0 24px ${primaryColor}55, 0 0 24px ${secondColor}55`)
+                  : "none";
                 return (
                   <button key={p.id} onClick={() => setPillar(i)} className="group relative">
-                    <div style={{ borderRadius:18, padding:thickness, background:borderBg, transition:"all 400ms ease" }}>
+                    <div style={{ borderRadius:18, padding:thickness, background:borderBg, boxShadow:neonGlow, transition:"all 400ms ease" }}>
                       <div className="relative overflow-hidden" style={{
                         height:"clamp(120px,16vw,160px)", borderRadius:18 - thickness,
-                        background: isActive ? "linear-gradient(180deg,rgba(196,154,60,.18),rgba(196,154,60,.02))" : "rgba(10,10,10,.85)",
+                        background: isActive ? "linear-gradient(180deg, #1a1408, #0a0a0a)" : "#0a0a0a",
                         transition: "all 400ms ease",
                       }}>
                         {isActive && (
@@ -1358,10 +1365,18 @@ export default function LandingPage() {
           </Reveal>
 
           {/* Active pillar content */}
+          {(() => {
+            const pAgents = PILLARS[pillar].agents;
+            const pPrimary = AGENT_COLORS[pAgents[0]];
+            const pSecond = AGENT_COLORS[pAgents[1] || pAgents[0]];
+            const panelGlow = pAgents.length === 1
+              ? `0 0 40px ${pPrimary}66, 0 0 12px ${pPrimary}44, 0 24px 48px rgba(0,0,0,.6)`
+              : `0 0 40px ${pPrimary}55, 0 0 40px ${pSecond}55, 0 24px 48px rgba(0,0,0,.6)`;
+            return (
           <div key={pillar} style={{ animation:"slidePanel 400ms cubic-bezier(.34,1.4,.64,1)" }}>
-            <div style={{ borderRadius:28, padding:2, background:agentBorder(PILLARS[pillar].agents), boxShadow:"0 0 80px rgba(196,154,60,.08), 0 24px 48px rgba(0,0,0,.5)" }}>
-              <div style={{ padding:"clamp(28px,4vw,48px)", borderRadius:26, background:"linear-gradient(135deg,rgba(196,154,60,.08),rgba(10,10,10,.92))", position:"relative", overflow:"hidden" }}>
-                <div aria-hidden style={{ position:"absolute", top:-100, right:-100, width:380, height:380, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.18),transparent 60%)", filter:"blur(50px)" }} />
+            <div style={{ borderRadius:28, padding:2, background:agentBorder(pAgents), boxShadow:panelGlow }}>
+              <div style={{ padding:"clamp(28px,4vw,48px)", borderRadius:26, background:"linear-gradient(135deg, #14100a, #0a0a0a)", position:"relative", overflow:"hidden" }}>
+                <div aria-hidden style={{ position:"absolute", top:-100, right:-100, width:380, height:380, borderRadius:"50%", background:"radial-gradient(circle,rgba(196,154,60,.10),transparent 60%)", filter:"blur(50px)" }} />
 
                 <div className="relative grid md:grid-cols-2 gap-10 items-start">
                   <div>
@@ -1405,6 +1420,8 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+            );
+          })()}
         </div>
       </section>
 
