@@ -254,7 +254,46 @@ const ELO4H_TABS = [
   },
 ];
 
-const PILLAR_ICONS = [Headphones, Target, LineChart];
+const PILLARS = [
+  {
+    id: "atendimento", label: "Atendimento", agent: "ELO4H",
+    title: "Atendimento 24h que não perde oportunidade",
+    desc: "Um agente treinado no seu negócio responde clientes a qualquer hora, em qualquer canal — com o mesmo tom de voz da sua empresa.",
+    features: ["Disponível 24/7","WhatsApp · Instagram · Site","Leitura de áudio e imagem","Respostas humanizadas","Handoff para humano","Histórico completo"],
+  },
+  {
+    id: "comercial", label: "Comercial", agent: "ELO4H",
+    title: "Qualificação e conversão automatizadas",
+    desc: "Triagem automática de leads, follow-up no tempo certo e agendamento integrado — sem aumentar a equipe.",
+    features: ["Qualificação automática","Follow-up no tempo ideal","Agenda inteligente","Zero conflito de horário","Conversão monitorada","Integração com CRM"],
+  },
+  {
+    id: "inteligencia", label: "Inteligência", agent: "ELO4H",
+    title: "Dados que viram decisão",
+    desc: "Dashboard em tempo real com métricas por unidade, canal e campanha. Recomendações estratégicas baseadas na operação real.",
+    features: ["Métricas em tempo real","Análise por unidade/canal","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Base para o gestor"],
+  },
+  {
+    id: "financeiro", label: "Financeiro", agent: "4Hbel",
+    title: "BPO financeiro automatizado com IA",
+    desc: "IA aplicada ao BPO financeiro. Conciliações automáticas, relatórios em tempo real e previsibilidade de fluxo de caixa.",
+    features: ["Conciliação automática","Relatórios em tempo real","Previsibilidade de fluxo","Redução de custo operacional","Integração bancária","Auditoria contínua"],
+  },
+  {
+    id: "midias", label: "Mídias Sociais", agent: "Ad4hn",
+    title: "Tráfego pago e gestão de conteúdo",
+    desc: "Agente de mídias sociais que gerencia tráfego pago, planeja e publica conteúdo, otimiza criativos e conecta cada métrica ao funil comercial.",
+    features: ["Tráfego pago otimizado","Calendário editorial automático","Gestão multi-plataforma","Métricas conectadas a vendas","Otimização de criativos","Relatórios de ROAS"],
+  },
+  {
+    id: "custom", label: "Customizado", agent: "Mari4h",
+    title: "Soluções de IA sob medida",
+    desc: "Agente de soluções customizadas. Se pode ser feito com IA, fazemos. Da automação inusitada à integração estratégica — o céu é o limite.",
+    features: ["Automações fora do padrão","Integrações sob medida","Casos de uso únicos","Prototipagem rápida com IA","Discovery completo","Suporte dedicado"],
+  },
+];
+
+const PILLAR_ICONS = [Headphones, Target, LineChart, DollarSign, Megaphone, Lightbulb];
 
 const PROCESS = [
   { n:"01", t:"Diagnóstico",  dur:"Semana 1",          desc:"Mergulho na sua operação. Mapeamento de processos, gargalos e oportunidades.",       out:"Mapa de processos + relatório"   },
@@ -311,7 +350,7 @@ export default function LandingPage() {
   const t1 = useTypewriterOnce("gargalo.", 70, tw1InView);
   const t2 = useTypewriterOnce("gargalo específico.", 60, tw2InView);
   const t3 = useTypewriterOnce("operação.", 70, tw3InView);
-  const t5 = useTypewriterOnce("Uma", 90, tw5InView);
+  const t5 = useTypewriterOnce("Uma operação inteira.", 55, tw5InView);
   const t4 = useTypewriter(
     ["seus gargalos.", "sua operação.", "seu atendimento.", "seus processos."],
     65, 32, 2200, tw4InView
@@ -1216,20 +1255,19 @@ export default function LandingPage() {
             <Reveal>
               <div className="uppercase" style={{ fontSize:11, letterSpacing:"0.3em", color:"#c49a3c", marginBottom:16 }}>──── O que nossos agentes fazem ────</div>
               <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,4.5vw,60px)", letterSpacing:"-0.03em", lineHeight:1.18, margin:"0 0 16px" }}>
-                Três pilares.{" "}
-                <span ref={tw5Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline" }}>{t5 || " "}</span>{" "}
-                operação inteira.
+                Seis pilares.{" "}
+                <span ref={tw5Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline" }}>{t5 || " "}</span>
               </h2>
               <p style={{ fontSize:16, color:"rgba(245,240,232,.55)", maxWidth:620, margin:"0 auto" }}>
-                Atendimento, conversão comercial e inteligência de dados conectados no mesmo agente — desenhados especificamente para a sua empresa.
+                Atendimento, comercial, inteligência, financeiro, mídias e soluções sob medida — todos os agentes conectados na mesma operação.
               </p>
             </Reveal>
           </div>
 
           {/* Pillar towers */}
           <Reveal>
-            <div className="grid grid-cols-3 gap-3 md:gap-5" style={{ maxWidth:760, margin:"0 auto 32px" }}>
-              {ELO4H_TABS.map((p, i) => {
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-5" style={{ maxWidth:1100, margin:"0 auto 32px" }}>
+              {PILLARS.map((p, i) => {
                 const Icon = PILLAR_ICONS[i];
                 const isActive = pillar === i;
                 return (
@@ -1246,32 +1284,29 @@ export default function LandingPage() {
                           <div aria-hidden style={{ position:"absolute", top:-2, left:"50%", transform:"translateX(-50%)", width:3, height:8, borderRadius:2, background:"#e8c060", boxShadow:"0 0 16px #e8c060" }} />
                         </>
                       )}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ padding:16 }}>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ padding:16 }}>
                         <div style={{ width:44, height:44, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", background:isActive ? "rgba(196,154,60,.22)" : "rgba(196,154,60,.08)", border:`1px solid ${isActive ? "rgba(196,154,60,.5)" : "rgba(196,154,60,.18)"}`, color:isActive ? "#e8c060" : "#c49a3c", transition:"all 300ms ease" }}>
                           <Icon className="w-5 h-5" aria-hidden />
                         </div>
-                        <div className="font-bold" style={{ fontSize:"clamp(14px,1.4vw,17px)", color:isActive ? "#f5f0e8" : "rgba(245,240,232,.75)", letterSpacing:"-0.01em" }}>
+                        <div className="font-bold" style={{ fontSize:"clamp(14px,1.4vw,17px)", color:isActive ? "#f5f0e8" : "rgba(245,240,232,.75)", letterSpacing:"-0.01em", textAlign:"center" }}>
                           {p.label}
+                        </div>
+                        <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:isActive ? "#e8c060" : "rgba(245,240,232,.4)", transition:"color 300ms ease" }}>
+                          {p.agent}
                         </div>
                       </div>
                     </div>
                     <div style={{ marginTop:10, fontFamily:"monospace", fontSize:10, letterSpacing:"0.2em", color:isActive ? "#c49a3c" : "rgba(245,240,232,.3)", textAlign:"center", transition:"color 300ms ease" }}>
-                      PILAR · 0{i+1}
+                      PILAR · {String(i+1).padStart(2,"0")}
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            {/* connecting line */}
-            <div style={{ maxWidth:760, margin:"0 auto 40px", padding:"0 48px" }}>
-              <div style={{ position:"relative", height:1, background:"linear-gradient(90deg,transparent,rgba(196,154,60,.3),transparent)" }}>
-                <div style={{ position:"absolute", top:"50%", transform:"translateY(-50%)", width:8, height:8, borderRadius:"50%", background:"#e8c060", boxShadow:"0 0 16px #e8c060", left:`calc(${(pillar/2)*100}% - 4px)`, transition:"left 500ms cubic-bezier(.34,1,.64,1)" }} />
-              </div>
-              <p style={{ textAlign:"center", marginTop:16, fontSize:11, fontStyle:"italic", color:"rgba(245,240,232,.35)" }}>
-                Os três pilares operam em sincronia — um único agente, três frentes.
-              </p>
-            </div>
+            <p style={{ textAlign:"center", marginBottom:40, fontSize:11, fontStyle:"italic", color:"rgba(245,240,232,.35)" }}>
+              Todos os pilares operam em sincronia — um ecossistema, uma única operação.
+            </p>
           </Reveal>
 
           {/* Active pillar content */}
@@ -1283,13 +1318,13 @@ export default function LandingPage() {
                 <div>
                   <div style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"6px 14px", borderRadius:100, marginBottom:20, background:"rgba(196,154,60,.12)", border:"1px solid rgba(196,154,60,.35)", fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"#e8c060" }}>
                     <PIcon className="w-3.5 h-3.5" aria-hidden />
-                    Pilar · {ELO4H_TABS[pillar].label}
+                    Pilar · {PILLARS[pillar].label}
                   </div>
                   <h3 className="font-bold" style={{ fontSize:"clamp(22px,2.8vw,32px)", color:"#f5f0e8", margin:"0 0 16px", letterSpacing:"-0.02em", lineHeight:1.15 }}>
-                    {ELO4H_TABS[pillar].title}
+                    {PILLARS[pillar].title}
                   </h3>
                   <p style={{ fontSize:15, lineHeight:1.7, color:"rgba(245,240,232,.65)", margin:"0 0 28px" }}>
-                    {ELO4H_TABS[pillar].desc}
+                    {PILLARS[pillar].desc}
                   </p>
                   <button onClick={() => scrollTo("contato")} className="lp-btn-primary font-bold rounded-full"
                     style={{ padding:"14px 26px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:13, boxShadow:"0 8px 28px rgba(196,154,60,.45)" }}>
@@ -1299,7 +1334,7 @@ export default function LandingPage() {
                 <div>
                   <div className="uppercase" style={{ fontSize:10, letterSpacing:"0.28em", color:"rgba(245,240,232,.45)", marginBottom:18 }}>O que está incluso</div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {ELO4H_TABS[pillar].features.map((f, i) => (
+                    {PILLARS[pillar].features.map((f, i) => (
                       <div key={i} className="flex items-center gap-3"
                         style={{ padding:"12px 14px", background:"rgba(5,5,5,.5)", border:"1px solid rgba(196,154,60,.14)", borderRadius:12, fontSize:13, color:"rgba(245,240,232,.85)", animation:`fadeIn4h 350ms ease ${i*60}ms both` }}>
                         <div aria-hidden style={{ width:18, height:18, borderRadius:6, background:"linear-gradient(135deg,#96682c,#c49a3c)", color:"#050505", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
