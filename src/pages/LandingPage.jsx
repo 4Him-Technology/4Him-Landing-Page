@@ -159,7 +159,7 @@ const NAV_LINKS = [
 ];
 
 const TYPEWRITER_WORDS = [
-  "resolve gargalos operacionais.",
+  "elimina ineficiências operacionais.",
   "automatiza seu atendimento.",
   "transforma dados em decisão.",
   "escala sem ampliar equipe.",
@@ -335,7 +335,7 @@ const ELO4H_TABS = [
     id: "inteligencia", label: "Inteligência",
     title: "Dados que viram decisão",
     desc: "Dashboard em tempo real com métricas por unidade, canal e campanha. Recomendações estratégicas baseadas na operação real.",
-    features: ["Métricas em tempo real","Análise por unidade/canal","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Base para o gestor"],
+    features: ["Métricas em tempo real","Análise por unidade/canal","Recomendações do agente","Relatórios exportáveis","Identificação de pontos críticos","Base para o gestor"],
   },
 ];
 
@@ -368,14 +368,14 @@ const PILLARS = [
     id: "inteligencia", label: "Inteligência", agents: ["ELO4H", "4HBEL", "AD4HN", "MARI4H"],
     title: "Dados de toda a operação no mesmo dashboard",
     desc: "Cada agente alimenta a inteligência central — operação, financeiro, marketing e integrações sob medida. Decisão estratégica baseada na empresa inteira.",
-    features: ["Métricas em tempo real","Operação · Financeiro · Marketing","Recomendações do agente","Relatórios exportáveis","Identificação de gargalos","Visão única da empresa"],
+    features: ["Métricas em tempo real","Operação · Financeiro · Marketing","Recomendações do agente","Relatórios exportáveis","Identificação de oportunidades","Visão única da empresa"],
   },
 ];
 
 const PILLAR_ICONS = [Headphones, DollarSign, Megaphone, Lightbulb, LineChart];
 
 const PROCESS = [
-  { n:"01", t:"Diagnóstico",  dur:"Semana 1",          desc:"Mergulho na sua operação. Mapeamento de processos, gargalos e oportunidades.",       out:"Mapa de processos + relatório"   },
+  { n:"01", t:"Diagnóstico",  dur:"Semana 1",          desc:"Mergulho na sua operação. Mapeamento de processos, pontos de melhoria e oportunidades.",       out:"Mapa de processos + relatório"   },
   { n:"02", t:"Desenho",      dur:"Semanas 2–3",       desc:"Arquitetura sob medida. Personalização por CNPJ, canal e equipe — zero template.",  out:"Especificação técnica + fluxos"  },
   { n:"03", t:"Implantação",  dur:"Semanas 3–5",       desc:"Integrações de canais, treinamento do agente com dados reais e dashboard.",         out:"Agente ativo + dashboard"        },
   { n:"04", t:"Operação",     dur:"A partir da sem. 6",desc:"Treinamento da equipe, suporte no onboarding e melhorias contínuas inclusas.",      out:"Suporte + revisões mensais"      },
@@ -426,12 +426,12 @@ export default function LandingPage() {
   const tw4Ref = useRef(null); const tw4InView = useInView(tw4Ref, 0.4);
   const tw5Ref = useRef(null); const tw5InView = useInView(tw5Ref, 0.5);
 
-  const t1 = useTypewriterOnce("gargalo.", 70, tw1InView);
-  const t2 = useTypewriterOnce("gargalo específico.", 60, tw2InView);
+  const t1 = useTypewriterOnce("maior obstáculo.", 70, tw1InView);
+  const t2 = useTypewriterOnce("problema específico.", 60, tw2InView);
   const t3 = useTypewriterOnce("operação.", 70, tw3InView);
   const t5 = useTypewriterOnce("Uma operação inteira.", 55, tw5InView);
   const t4 = useTypewriter(
-    ["seus gargalos.", "sua operação.", "seu atendimento.", "seus processos."],
+    ["seus resultados.", "sua operação.", "seu atendimento.", "seus processos."],
     65, 32, 2200, tw4InView
   );
 
@@ -683,7 +683,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-3.5 justify-center" style={{ marginBottom:72 }}>
             <button onClick={() => scrollTo("desafio")} className="lp-btn-primary font-bold rounded-full"
               style={{ padding:"17px 32px", background:"linear-gradient(135deg,#96682c,#e8c060)", color:"#050505", fontSize:14, boxShadow:"0 10px 36px rgba(196,154,60,.5), inset 0 1px 0 rgba(255,255,255,.25)" }}>
-              Qual é o seu gargalo? →
+              Qual é o seu desafio? →
             </button>
             <button onClick={() => scrollTo("produtos")} className="lp-btn-ghost font-semibold rounded-full"
               style={{ padding:"17px 32px", background:"rgba(255,255,255,.025)", color:"#f5f0e8", border:"1px solid rgba(196,154,60,.25)", fontSize:14 }}>
