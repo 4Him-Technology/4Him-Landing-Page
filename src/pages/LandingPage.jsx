@@ -431,7 +431,7 @@ export default function LandingPage() {
   const t3 = useTypewriterOnce("operação.", 70, tw3InView);
   const t5 = useTypewriterOnce("Uma operação inteira.", 55, tw5InView);
   const t4 = useTypewriter(
-    ["seus resultados.", "sua operação.", "seu atendimento.", "seus processos."],
+    ["os seus resultados.", "a sua operação.", "o seu atendimento.", "os seus processos."],
     65, 32, 2200, tw4InView
   );
 
@@ -1503,7 +1503,7 @@ export default function LandingPage() {
                 Sem compromisso · Diagnóstico gratuito
               </div>
               <h2 className="font-extrabold" style={{ fontSize:"clamp(32px,5vw,68px)", letterSpacing:"-0.045em", lineHeight:1.15, margin:"0 0 24px", color:"#f5f0e8" }}>
-                Vamos resolver os{" "}<br />
+                Vamos resolver{" "}<br />
                 <span ref={tw4Ref} style={{ fontFamily:'"Cormorant Garamond","Playfair Display",Georgia,serif', fontStyle:"italic", fontWeight:400, background:"linear-gradient(100deg,#96682c 5%,#e8c060 35%,#ffe9a8 50%,#e8c060 65%,#96682c 95%)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", animation:"shimmer4h 6s linear infinite", paddingBottom:"0.3em", display:"inline-block", lineHeight:1.4, verticalAlign:"baseline", minHeight:"1.4em" }}>
                   {t4 || " "}
                   <span aria-hidden style={{ display:"inline-block", width:3, height:"0.85em", background:"#e8c060", borderRadius:2, animation:"blink 1s ease-in-out infinite", verticalAlign:"middle", marginLeft:6, WebkitTextFillColor:"#e8c060" }} />
