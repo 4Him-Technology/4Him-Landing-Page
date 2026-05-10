@@ -8,14 +8,21 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Sao_Paulo"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
     commit-message:
       prefix: "deps"
       include: "scope"
+    # Bloqueia majors — só sugerimos minor/patch automaticamente.
+    # Major bumps (React 19, Tailwind 4, Vite 8 etc.) precisam de revisão manual
+    # porque costumam ter breaking changes.
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
     groups:
-      # Agrupa atualizações minor/patch para não criar 1 PR por pacote
+      # Agrupa minor + patch num único PR (evita 1 PR por pacote)
       minor-and-patch:
         update-types:
           - "minor"
@@ -29,3 +36,7 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"

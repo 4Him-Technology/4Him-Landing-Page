@@ -1,21 +1,46 @@
-# Security Policy
+# Política de Segurança — 4Him Landing Page
 
-## Supported Versions
+## 📦 Versão suportada
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Apenas a branch `main` (versão em produção em [4him.com.br](https://4him.com.br)) recebe correções de segurança.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Versão | Suporte |
+| ------ | ------- |
+| `main` (produção) | ✅ |
+| Branches antigas / forks | ❌ |
 
-## Reporting a Vulnerability
+## 🛡️ Como reportar uma vulnerabilidade
 
-Use this section to tell people how to report a vulnerability.
+Encontrou algum problema de segurança neste projeto ou no site?
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+- **E-mail privado:** [contato@4him.com.br](mailto:contato@4him.com.br)
+- **Assunto sugerido:** `[SECURITY] <descrição curta>`
+
+Por favor, **não abra issues públicas** para vulnerabilidades. Em vez disso, mande os detalhes pelo e-mail acima.
+
+## 📋 O que incluir no report
+
+Para acelerar a análise, inclua se possível:
+
+1. **Descrição do problema** e impacto potencial
+2. **Passos para reproduzir** (URL, payload, contexto)
+3. **Versão / commit** afetado
+4. **Recomendação de correção** (opcional)
+
+## ⏱️ Tempo de resposta
+
+| Etapa | Prazo alvo |
+| ----- | ---------- |
+| Confirmação de recebimento | até 48h úteis |
+| Avaliação inicial e classificação | até 7 dias |
+| Correção e deploy (vulnerabilidades altas/críticas) | até 14 dias |
+
+## 🔒 Stack e superfície de ataque
+
+Este repositório é uma **landing page estática** (React + Vite, hospedada na Netlify):
+
+- Sem backend, sem banco de dados, sem autenticação
+- Sem coleta ou armazenamento de dados de usuários
+- Único contato externo: `wa.me` (WhatsApp) e `mailto:`
+- Headers de segurança configurados via `netlify.toml` (CSP, HSTS, X-Frame-Options, Permissions-Policy, etc.)
+- Dependências monitoradas por Dependabot
