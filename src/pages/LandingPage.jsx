@@ -1533,7 +1533,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-3" style={{ marginBottom:16 }}>
                 <img src={LOGO_ICON_URL} alt="" className="h-10 w-auto" />
                 <div>
-                  <div className="font-bold" style={{ fontSize:16, color:"#f5f0e8" }}>4Him Technology</div>
+                  <div className="font-bold" style={{ fontSize:16, color:"#f5f0e8" }}>4Him</div>
                   <div className="uppercase" style={{ fontSize:9, letterSpacing:"0.22em", color:"rgba(245,240,232,.4)" }}>Consultoria em IA</div>
                 </div>
               </div>
@@ -1584,7 +1584,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col md:flex-row md:justify-between gap-2"
             style={{ paddingTop:24, borderTop:"1px solid rgba(196,154,60,.1)", fontSize:11, color:"rgba(245,240,232,.3)" }}>
-            <div>© {new Date().getFullYear()} 4Him Technology. Todos os direitos reservados.</div>
+            <div>© {new Date().getFullYear()} 4Him. Todos os direitos reservados.</div>
             <div>Consultoria estratégica em IA — do diagnóstico à operação.</div>
           </div>
         </div>
