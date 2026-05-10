@@ -1513,7 +1513,7 @@ export default function LandingPage() {
                 Converse com a 4Him. Entendemos seu processo, mapeamos oportunidades e desenhamos uma solução sob medida — do atendimento ao BPO financeiro.
               </p>
               <div className="flex justify-center">
-                <button onClick={() => window.open(WHATSAPP_URL,"_blank")}
+                <button onClick={() => window.open(WHATSAPP_URL,"_blank","noopener,noreferrer")}
                   className="lp-btn-primary font-bold rounded-full inline-flex items-center justify-center gap-2.5"
                   style={{ padding:"18px 36px", background:"linear-gradient(135deg,#e8c060,#ffe9a8)", color:"#050505", fontSize:15, boxShadow:"0 14px 40px rgba(255,233,168,.4), inset 0 1px 0 rgba(255,255,255,.4)" }}>
                   <MessageCircle className="w-4 h-4" aria-hidden />
