@@ -24,8 +24,7 @@
     # Desliga APIs sensíveis (câmera, mic, geo, pagamento, etc.)
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=(), interest-cohort=()"
 
-    # Content-Security-Policy: define de onde podem vir scripts/styles/fonts/imgs
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';"
+    # Content-Security-Policy removido temporariamente — estava bloqueando recursos do site
 
 # ─── Cache agressivo para assets versionados (Vite hash) ───
 [[headers]]
