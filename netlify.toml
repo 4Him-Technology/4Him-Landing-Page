@@ -2,7 +2,7 @@
   publish = "dist"
   command = "npm run build"
 
-# ─── Security headers (todas as páginas) ───
+# Security headers (todas as páginas)
 [[headers]]
   for = "/*"
   [headers.values]
@@ -24,28 +24,32 @@
     # Desliga APIs sensíveis (câmera, mic, geo, pagamento, etc.)
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=(), interest-cohort=()"
 
-    # Content-Security-Policy removido temporariamente — estava bloqueando recursos do site
+    # Content-Security-Policy removido temporariamente: estava bloqueando recursos do site
 
-# ─── Cache agressivo para assets versionados (Vite hash) ───
+# Cache agressivo para assets versionados (Vite hash)
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# ─── Imagens estáticas: cache de 1 dia ───
+# Imagens estáticas: cache de 1 dia
 [[headers]]
   for = "/images/*"
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# ─── HTML nunca é cacheado (sempre serve a versão mais nova) ───
+# HTML nunca é cacheado (sempre serve a versão mais nova)
 [[headers]]
   for = "/index.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# ─── SPA fallback: rotas inexistentes voltam para index.html ───
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# sitemap.xml: cache curto para os buscadores pegarem a versão atual
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Sem fallback de SPA: o site tem uma página só, e devolver a home com status 200
+# para qualquer URL faz o Google enxergar conteúdo duplicado (soft 404).
+# URLs inexistentes caem no public/404.html com status 404.
